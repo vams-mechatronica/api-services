@@ -13,3 +13,7 @@ class GenerateUUID:
     @staticmethod
     def generate_whatsapp_otp_message_id():
         return str(uuid.uuid1())
+    
+    @staticmethod
+    def generate_sku(prefix='SKU'):
+        return f"{prefix}-{uuid.uuid4().hex[:8].upper()}"

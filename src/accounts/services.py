@@ -20,6 +20,7 @@ class OTPService:
             expires_at=expires_at
         )
         WhatsAppGateway().send_otp(phone_number, otp_code)
+        return otp_code
 
     @staticmethod
     def verify_otp(phone_number, otp_code):

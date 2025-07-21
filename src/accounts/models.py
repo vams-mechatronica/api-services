@@ -3,6 +3,7 @@ from django.db import models
 from utils.g_uuid import GenerateUUID
 from django.utils import timezone
 from datetime import timedelta
+from category.models import Category
 
 class User(AbstractUser):
     USER_ROLES = (
@@ -31,6 +32,7 @@ class CustomerProfile(BaseProfile):
 class VendorProfile(BaseProfile):
     shop_name = models.CharField(max_length=255)
     shop_address = models.TextField()
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
     bda = models.ForeignKey('BDAProfile', null=True, blank=True, on_delete=models.SET_NULL)
 
 class BDAProfile(BaseProfile):

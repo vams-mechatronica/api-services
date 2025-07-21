@@ -37,8 +37,22 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'django_filters',
+    'django_quill',
+    'drf_yasg',
     'accounts',
     'api',
+    'cart',
+    'category',
+    'delivery',
+    'orders',
+    'payments',
+    'products',
+    'scheduler',
+    'django_celery_results',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -138,3 +152,21 @@ INFOBIP_API_KEY = "1df6da9de0f3146a6974d2341f9009e3-6c2d2d67-30ea-4449-bfb2-fd7c
 INFOBIP_SEND_TEMPLATE_MESSAGE_API_URL = "https://2vmy9l.api.infobip.com/whatsapp/1/message/template"
 INFOBIP_BASE_URL = "https://2vmy9l.api.infobip.com"
 INFOBIP_SENDER_NUMBER = "12248140388"
+
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+}
