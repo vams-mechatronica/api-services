@@ -8,7 +8,7 @@ class OTPService:
 
     @staticmethod
     def generate_random_otp():
-        return str(randint(100000,999999))
+        return str(randint(1000,9999))
     
     @staticmethod
     def generate_otp(phone_number):

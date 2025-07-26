@@ -24,3 +24,37 @@ class AuthenticationService:
 
     def password_login(self, username_or_phone, password):
         return authenticate(username=username_or_phone, password=password)
+
+
+from django.contrib.auth import get_user_model
+from rest_framework.authtoken.models import Token
+from rest_framework_simplejwt.tokens import RefreshToken
+
+User = get_user_model()
+
+class UserService:
+    def __init__(self, use_jwt=True):
+        self.use_jwt = use_jwt  # toggle based on your need
+
+    def get_or_create_user(self, phone_number, role=None):
+        user, created = User.objects.get_or_create(phone_number=phone_number)
+
+        if created:
+            user.role = role.lower() if role else 'customer'
+            user.set_unusable_password()
+            user.save()
+
+        return user, created
+
+    def generate_token(self, user):
+        if self.use_jwt:
+            refresh = RefreshToken.for_user(user)
+            return {
+                "refresh": str(refresh),
+                "access": str(refresh.access_token)
+            }
+        else:
+            token, _ = Token.objects.get_or_create(user=user)
+            return {
+                "token": token.key
+            }

@@ -3,9 +3,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import get_user_model
 from accounts.services import OTPService
-from .authenticator import AuthenticationService
+from .authenticator import AuthenticationService, UserService
 from rest_framework import generics, permissions, filters
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.authentication import TokenAuthentication, BasicAuthentication, SessionAuthentication
 from .permissions import *
@@ -35,20 +36,23 @@ class VerifySignupOTP(APIView):
 
         otp_service = OTPService()
         if otp_service.verify_otp(phone_number, otp):
-            cuser, created = user.objects.get_or_create(phone_number=phone_number)
-            if role and created:
-                cuser.phone_number = phone_number
-                cuser.role = role.lower()
-                cuser.set_unusable_password()
-                cuser.save()
+            user_service = UserService(use_jwt=True)  # or False for Django Token
+            cuser, created = user_service.get_or_create_user(phone_number, role)
+            token = user_service.generate_token(cuser)
 
-            return Response({'message': 'Signup successful.', 'user_id': cuser.id}, status=status.HTTP_200_OK)
-        else:
-            return Response({'error': 'Invalid OTP.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                'message': 'Signup successful.',
+                'user_id': cuser.id,
+                'token': token
+            }, status=status.HTTP_200_OK)
+
+        return Response({'error': 'Invalid OTP.'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 
 class RequestLoginOTP(APIView):
+    permission_classes = (AllowAny,)
     def post(self, request):
         phone_number = request.data.get('phone_number')
         if not phone_number:
@@ -61,6 +65,7 @@ class RequestLoginOTP(APIView):
 
 
 class VerifyLoginOTP(APIView):
+    permission_classes = (AllowAny,)
     def post(self, request):
         phone_number = request.data.get('phone_number')
         otp = request.data.get('otp')
@@ -70,11 +75,13 @@ class VerifyLoginOTP(APIView):
 
         auth_service = AuthenticationService()
         if auth_service.verify_login_otp(phone_number, otp):
-            cuser = user.objects.filter(phone_number=phone_number).first()
+            user_service = UserService(use_jwt=True)  # or False for Django Token
+            cuser, created = user_service.get_or_create_user(phone_number.replace('+',''))
+            token = user_service.generate_token(cuser)
             if not cuser:
                 return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-            return Response({'message': 'Login successful.', 'user_id': cuser.id}, status=status.HTTP_200_OK)
+            return Response({'message': 'Login successful.', 'user_id': cuser.id, 'token':token}, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Invalid OTP.'}, status=status.HTTP_400_BAD_REQUEST)
 
