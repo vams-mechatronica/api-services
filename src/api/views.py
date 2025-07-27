@@ -165,3 +165,54 @@ class FoodProductDetailView(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = (BasicAuthentication, TokenAuthentication,SessionAuthentication)
 
 
+# --- Customer Profile CRUD ---
+class CustomerProfileListCreateView(generics.ListCreateAPIView):
+    queryset = CustomerProfile.objects.all()
+    serializer_class = CustomerProfileSerializer
+
+
+class CustomerProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = CustomerProfile.objects.all()
+    serializer_class = CustomerProfileSerializer
+
+
+# --- Vendor Profile CRUD ---
+class VendorProfileListCreateView(generics.ListCreateAPIView):
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
+    search_fields = ('shop_name',)
+    filterset_fields = ('category',)
+    permission_classes = (AllowAny,)
+    queryset = VendorProfile.objects.all()
+    serializer_class = VendorProfileSerializer
+
+
+class VendorProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (AllowAny,)
+    queryset = VendorProfile.objects.all()
+    serializer_class = VendorProfileSerializer
+
+
+# --- BDA Profile CRUD ---
+class BDAProfileListCreateView(generics.ListCreateAPIView):
+    queryset = BDAProfile.objects.all()
+    serializer_class = BDAProfileSerializer
+
+
+class BDAProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = BDAProfile.objects.all()
+    serializer_class = BDAProfileSerializer
+
+
+# --- Bank Detail CRUD ---
+class BankDetailListCreateView(generics.ListCreateAPIView):
+    queryset = BankDetail.objects.all()
+    serializer_class = BankDetailSerializer
+
+
+class BankDetailDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = BankDetail.objects.all()
+    serializer_class = BankDetailSerializer

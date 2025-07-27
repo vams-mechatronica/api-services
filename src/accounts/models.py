@@ -1,4 +1,6 @@
 from django.contrib.auth.models import AbstractUser
+from django.contrib.contenttypes.fields import GenericRelation
+from payments.models import BankDetail
 from django.db import models
 from utils.g_uuid import GenerateUUID
 from django.utils import timezone
@@ -28,15 +30,19 @@ class BaseProfile(models.Model):
 
 class CustomerProfile(BaseProfile):
     address = models.TextField()
+    bank_details = GenericRelation(BankDetail)
 
 class VendorProfile(BaseProfile):
     shop_name = models.CharField(max_length=255)
     shop_address = models.TextField()
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
     bda = models.ForeignKey('BDAProfile', null=True, blank=True, on_delete=models.SET_NULL)
+    bank_details = GenericRelation(BankDetail)
 
 class BDAProfile(BaseProfile):
-    assigned_area = models.CharField(max_length=255)
+    region = models.CharField(max_length=255)
+    bank_details = GenericRelation(BankDetail)
+
 
 class OTPRecord(models.Model):
     phone_number = models.CharField(max_length=15)
