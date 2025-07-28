@@ -216,3 +216,22 @@ class BankDetailListCreateView(generics.ListCreateAPIView):
 class BankDetailDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = BankDetail.objects.all()
     serializer_class = BankDetailSerializer
+
+
+class VendorProductsListView(generics.ListAPIView):
+    permission_classes = (AllowAny,)
+    serializer_class = FoodProductSerializer
+
+    def get_queryset(self):
+        vendor_id = self.request.GET.get('vendor_id')
+        if not vendor_id:
+            return FoodProduct.objects.none()
+        return FoodProduct.objects.filter(vendor_id=vendor_id)
+
+    def list(self, request, *args, **kwargs):
+        vendor_id = self.request.GET.get('vendor_id')
+        if not vendor_id:
+            return Response({'message': 'vendor_id is compulsory'}, status=status.HTTP_400_BAD_REQUEST)
+        return super().list(request, *args, **kwargs)
+    
+    

@@ -21,6 +21,7 @@ urlpatterns = [
 
     path('vendors/', VendorProfileListCreateView.as_view(), name='vendor-list-create'),
     path('vendors/<int:pk>/', VendorProfileDetailView.as_view(), name='vendor-detail'),
+    path('vendors/product/',VendorProductsListView.as_view(),name="vendor-product-list"),
 
     path('bdas/', BDAProfileListCreateView.as_view(), name='bda-list-create'),
     path('bdas/<int:pk>/', BDAProfileDetailView.as_view(), name='bda-detail'),
