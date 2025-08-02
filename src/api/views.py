@@ -16,11 +16,10 @@ user = get_user_model()
 import hmac, hashlib, json
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-
-
 from cart.services.cart_service import add_or_update_cart_item
 from orders.services.order_service import create_order_from_cart
 from payments.services.payment_service import create_razorpay_order,verify_razorpay_signature,verify_webhook_signature, process_webhook_payload, create_wallet_recharge_order, verify_payment_signature
+from scheduler.services.subscription_service import check_wallet_balance_and_update
 
 class RequestSignupOTP(APIView):
     def post(self, request):
@@ -370,7 +369,10 @@ class ProductSubscriptionListCreateView(generics.ListCreateAPIView):
     filterset_fields = ['frequency', 'status', 'product']
 
     def get_queryset(self):
-        return ProductSubscription.objects.filter(user=self.request.user)
+        subscriptions = ProductSubscription.objects.filter(user=self.request.user)
+        for sub in subscriptions:
+            check_wallet_balance_and_update(sub)
+        return subscriptions
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

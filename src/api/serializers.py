@@ -154,6 +154,13 @@ class ProductSubscriptionSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['created_at', 'updated_at', 'last_renewed']
 
+class ProductSubscriptionDetailSerializer(serializers.ModelSerializer):
+    product = ProductSerializer()
+    class Meta:
+        model = ProductSubscription
+        fields = '__all__'
+        read_only_fields = ['created_at', 'updated_at', 'last_renewed']
+
 class SimpleProductSubscriptionCreateSerializer(serializers.Serializer):
     product_id = serializers.IntegerField()
     start_date = serializers.DateField()
