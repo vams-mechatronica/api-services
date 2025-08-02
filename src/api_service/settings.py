@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-ia234pyzlwr=79&glbk3il-1r)so52f$cuw)aqfv8_w#xc#=ii
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -51,11 +51,15 @@ INSTALLED_APPS = [
     'payments',
     'products',
     'scheduler',
+    'wallet',
+    'corsheaders',
+    'personalization',
     'django_celery_results',
     'django_celery_beat',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -64,7 +68,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
+CORS_ALLOW_ALL_ORIGINS = True
 AUTH_USER_MODEL = 'accounts.User'
 ROOT_URLCONF = 'api_service.urls'
 
@@ -150,11 +154,15 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # fallback
 ]
 
-
-INFOBIP_API_KEY = "1df6da9de0f3146a6974d2341f9009e3-6c2d2d67-30ea-4449-bfb2-fd7cab2efb4f"
+import os
+INFOBIP_API_KEY = os.getenv('INFOBIP_API_KEY')
 INFOBIP_SEND_TEMPLATE_MESSAGE_API_URL = "https://2vmy9l.api.infobip.com/whatsapp/1/message/template"
 INFOBIP_BASE_URL = "https://2vmy9l.api.infobip.com"
-INFOBIP_SENDER_NUMBER = "12248140388"
+INFOBIP_SENDER_NUMBER = os.getenv('INFOBIP_SENDER')
+
+RAZORPAY_KEY_ID = os.getenv('RAZORPAY_API_KEY',"rzp_test_vsgd7Mcsti6q2F")
+RAZORPAY_KEY_SECRET = os.getenv('RAZORPAY_API_KEY_SECRET','tLc1MCLycrF7ySQDTknqh7eC')
+
 
 
 
@@ -163,7 +171,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
     ],
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',

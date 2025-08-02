@@ -19,7 +19,7 @@ class OTPService:
             otp_code=otp_code,
             expires_at=expires_at
         )
-        WhatsAppGateway().send_otp(phone_number, otp_code)
+        # WhatsAppGateway().send_otp(phone_number, otp_code)
         return otp_code
 
     @staticmethod

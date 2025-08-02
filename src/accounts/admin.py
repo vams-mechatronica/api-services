@@ -9,4 +9,10 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(BDAProfile)
 class BDAProfileAdmin(admin.ModelAdmin):
     list_display = ('id','region')
+
+@admin.register(OTPRecord)
+class OTPRecordAdmin(admin.ModelAdmin):
+    list_display = ('phone_number','otp_code','is_verified','is_expired')
+    
+
     
