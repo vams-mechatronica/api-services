@@ -4,7 +4,7 @@ import random
 from accounts.models import *
 from django.utils import timezone
 from datetime import timedelta
-from utils.whatsapp.whatsapp_gateway import WhatsAppGateway
+from notifications.utils.whatsapp.whatsapp_gateway import WhatsAppGateway
 from accounts.services import OTPService
 
 class AuthenticationService:
