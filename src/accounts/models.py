@@ -82,3 +82,28 @@ class DeliveryAddress(models.Model):
     phone_number = models.CharField(max_length=15)
 
 
+class ShopAddress(models.Model):
+    vendor = models.OneToOneField(VendorProfile, on_delete=models.CASCADE, related_name='shop_location')
+    address_line1 = models.CharField(max_length=255)
+    address_line2 = models.CharField(max_length=255, blank=True)
+    city = models.CharField(max_length=64)
+    state = models.CharField(max_length=64)
+    country = models.CharField(max_length=64)
+    pincode = models.CharField(max_length=10)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.vendor.shop_name} - {self.city}"
+
+
+class ShopDocument(models.Model):
+    vendor = models.ForeignKey(VendorProfile, on_delete=models.CASCADE, related_name='documents')
+    registration_number = models.CharField(max_length=50, blank=True)
+    gstin = models.CharField(max_length=15, blank=True)
+    pan_card = models.CharField(max_length=10, blank=True)
+    additional_doc_name = models.CharField(max_length=255, blank=True)
+    additional_doc_file = models.FileField(upload_to='shop_docs/', blank=True)
+
+    def __str__(self):
+        return f"{self.vendor.shop_name} - Documents"

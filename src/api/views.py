@@ -14,6 +14,7 @@ from .serializers import *
 from datetime import date
 user = get_user_model()
 import hmac, hashlib, json
+from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from cart.services.cart_service import add_or_update_cart_item
@@ -77,7 +78,8 @@ class VerifyLoginOTP(APIView):
     def post(self, request):
         phone_number = request.data.get('phone_number')
         otp = request.data.get('otp')
-
+        role = request.data.get('role')
+        bdaUserId = None
         if not phone_number or not otp:
             return Response({'error': 'Phone number and OTP required.'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -88,8 +90,11 @@ class VerifyLoginOTP(APIView):
             token = user_service.generate_token(cuser)
             if not cuser:
                 return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-            return Response({'message': 'Login successful.', 'user_id': cuser.id, 'token':token}, status=status.HTTP_200_OK)
+            if role and role == 'bda':
+                bdaObj = get_object_or_404(BDAProfile,user=cuser)
+                if bdaObj:
+                    bdaUserId = bdaObj.pk
+            return Response({'message': 'Login successful.', 'user_id': cuser.id,'bdaUserId':bdaUserId, 'token':token}, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Invalid OTP.'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -668,3 +673,27 @@ class BannerCreateView(generics.CreateAPIView):
     queryset = Banner.objects.all()
     serializer_class = BannerSerializer
     permission_classes = [IsAdminOrBDA]
+
+
+class ShopAddressCreateView(generics.CreateAPIView):
+    queryset = ShopAddress.objects.all()
+    serializer_class = ShopAddressSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class ShopAddressDetailView(generics.RetrieveUpdateAPIView):
+    queryset = ShopAddress.objects.all()
+    serializer_class = ShopAddressSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class ShopDocumentCreateView(generics.CreateAPIView):
+    queryset = ShopDocument.objects.all()
+    serializer_class = ShopDocumentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class ShopDocumentDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = ShopDocument.objects.all()
+    serializer_class = ShopDocumentSerializer
+    permission_classes = [permissions.IsAuthenticated]

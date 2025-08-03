@@ -25,3 +25,8 @@ class IsAdminOrBDA(BasePermission):
             (request.user.is_staff or request.user.is_superuser)
             # OR implement custom role check if you have one.
         )
+
+
+class IsVendorUser(BasePermission):
+    def has_permission(self, request, view):
+        return hasattr(request.user, 'vendorprofile')

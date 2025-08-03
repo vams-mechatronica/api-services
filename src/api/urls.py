@@ -29,6 +29,12 @@ urlpatterns = [
     path('vendors/<int:pk>/', VendorProfileDetailView.as_view(), name='vendor-detail'),
     path('vendors/product/',VendorProductsListView.as_view(),name="vendor-product-list"),
 
+    path('vendors/shop-address/', ShopAddressCreateView.as_view(), name='create-shop-address'),
+    path('vendors/shop-address/<int:pk>/', ShopAddressDetailView.as_view(), name='shop-address-detail'),
+
+    path('vendors/shop-documents/', ShopDocumentCreateView.as_view(), name='create-shop-document'),
+    path('vendors/shop-documents/<int:pk>/', ShopDocumentDetailView.as_view(), name='shop-document-detail'),
+
     path('bdas/', BDAProfileListCreateView.as_view(), name='bda-list-create'),
     path('bdas/<int:pk>/', BDAProfileDetailView.as_view(), name='bda-detail'),
 

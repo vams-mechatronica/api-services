@@ -274,3 +274,14 @@ class BannerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Banner
         fields = '__all__'
+
+class ShopAddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShopAddress
+        fields = '__all__'
+
+
+class ShopDocumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShopDocument
+        fields = '__all__'
