@@ -41,6 +41,7 @@ class UserService:
 
         if created:
             user.role = role.lower() if role else 'customer'
+            user.is_phone_verified = True
             user.set_unusable_password()
             user.save()
 
