@@ -15,4 +15,20 @@ class OTPRecordAdmin(admin.ModelAdmin):
     list_display = ('phone_number','otp_code','is_verified','is_expired')
     
 
+@admin.register(BankDetail)
+class BankDetailAdmin(admin.ModelAdmin):
+    list_display = ('id','profile','content_type','object_id')
+
+@admin.register(VendorProfile)
+class VendorProfileAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(CustomerProfile)
+class CustomerProfileAdmin(admin.ModelAdmin):
+    pass
     
+
+    
+
+    
+
