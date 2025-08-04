@@ -206,7 +206,7 @@ class VendorProfileListCreateView(generics.ListCreateAPIView):
 class VendorProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (AllowAny,)
     queryset = VendorProfile.objects.all()
-    serializer_class = VendorProfileSerializer
+    serializer_class = VendorDetailSerializer
 
 
 # --- BDA Profile CRUD ---

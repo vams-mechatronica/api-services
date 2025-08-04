@@ -285,3 +285,42 @@ class ShopDocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShopDocument
         fields = '__all__'
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'phone_number', 'role', 'is_phone_verified', 'is_email_verified']
+
+
+
+class BDASerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = BDAProfile
+        fields = ['id', 'region', 'user']
+
+
+class VendorDetailSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    category = CategorySerializer()
+    bda = BDASerializer()
+    bank_details = BankDetailSerializer(many=True)
+    shop_location = ShopAddressSerializer()
+    documents = ShopDocumentSerializer(many=True)
+
+    class Meta:
+        model = VendorProfile
+        fields = [
+            'id',
+            'user',
+            'shop_name',
+            'shop_address',
+            'category',
+            'bda',
+            'trial_ends_at',
+            'bank_details',
+            'shop_location',
+            'documents',
+            'is_in_trial',
+        ]
