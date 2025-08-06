@@ -223,6 +223,14 @@ class CouponSerializer(serializers.ModelSerializer):
         model = Coupon
         fields = ['id', 'code', 'discount_percent', 'active']
 
+class VendorCouponSerializer(serializers.ModelSerializer):
+    coupon = CouponSerializer()
+
+    class Meta:
+        model = VendorCoupon
+        fields = ['id', 'vendor', 'coupon', 'valid_from', 'valid_to', 'active']
+
+
 class OrderItemSerializer(serializers.ModelSerializer):
     product = serializers.StringRelatedField()
 

@@ -89,14 +89,14 @@ class VerifyLoginOTP(APIView):
             cuser, created = user_service.get_or_create_user(phone_number.replace('+',''))
             token = user_service.generate_token(cuser)
             if not cuser:
-                return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'message': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
             if role and role == 'bda':
                 bdaObj = get_object_or_404(BDAProfile,user=cuser)
                 if bdaObj:
                     bdaUserId = bdaObj.pk
             return Response({'message': 'Login successful.', 'user_id': cuser.id,'bdaUserId':bdaUserId, 'token':token}, status=status.HTTP_200_OK)
         else:
-            return Response({'error': 'Invalid OTP.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Invalid OTP.'}, status=status.HTTP_400_BAD_REQUEST)
 
 class PasswordLogin(APIView):
     def post(self, request):
@@ -229,6 +229,46 @@ class BankDetailListCreateView(generics.ListCreateAPIView):
 class BankDetailDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = BankDetail.objects.all()
     serializer_class = BankDetailSerializer
+
+class VendorBankDetailsListCreateView(generics.ListAPIView):
+    serializer_class = BankDetailSerializer
+    permission_classes = (IsAdminOrBDA,)
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication)
+
+    def get_queryset(self):
+        vendor_id = self.request.GET.get('vendor_id')
+        if not vendor_id:
+            return BankDetail.objects.none()
+
+        vendor_ct = ContentType.objects.get_for_model(VendorProfile)
+        return BankDetail.objects.filter(content_type=vendor_ct, object_id=vendor_id)
+
+    def list(self, request, *args, **kwargs):
+        vendor_id = self.request.GET.get('vendor_id')
+        if not vendor_id:
+            return Response({'message': 'vendor_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+        return super().list(request, *args, **kwargs)
+    
+    def create(self, request, *args, **kwargs):
+        vendor_id = request.data.get('vendor_id')
+        if not vendor_id:
+            return Response({'message': 'vendor_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            vendor = VendorProfile.objects.get(id=vendor_id)
+        except VendorProfile.DoesNotExist:
+            return Response({'message': 'Vendor not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        vendor_ct = ContentType.objects.get_for_model(VendorProfile)
+        data = request.data.copy()
+        data['content_type'] = vendor_ct.id
+        data['object_id'] = vendor.id
+
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 class VendorProductsListView(generics.ListAPIView):
     permission_classes = (AllowAny,)
@@ -673,11 +713,12 @@ class BannerCreateView(generics.CreateAPIView):
     permission_classes = [IsAdminOrBDA]
 
 
-class ShopAddressCreateView(generics.CreateAPIView):
+class ShopAddressCreateView(generics.ListCreateAPIView):
     queryset = ShopAddress.objects.all()
     serializer_class = ShopAddressSerializer
     permission_classes = [permissions.IsAuthenticated]
-
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['vendor']
 
 class ShopAddressDetailView(generics.RetrieveUpdateAPIView):
     queryset = ShopAddress.objects.all()
@@ -685,13 +726,47 @@ class ShopAddressDetailView(generics.RetrieveUpdateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
 
-class ShopDocumentCreateView(generics.CreateAPIView):
+class ShopDocumentCreateView(generics.ListCreateAPIView):
     queryset = ShopDocument.objects.all()
     serializer_class = ShopDocumentSerializer
     permission_classes = [permissions.IsAuthenticated]
-
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['vendor']
+    
 
 class ShopDocumentDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ShopDocument.objects.all()
     serializer_class = ShopDocumentSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+
+class CouponListCreateView(generics.ListCreateAPIView):
+    queryset = Coupon.objects.all()
+    serializer_class = CouponSerializer
+
+class CouponRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Coupon.objects.all()
+    serializer_class = CouponSerializer
+
+class VendorCouponListCreateView(generics.ListCreateAPIView):
+    serializer_class = VendorCouponSerializer
+
+    def get_queryset(self):
+        vendor_id = self.request.GET.get('vendor_id')
+        if vendor_id:
+            return VendorCoupon.objects.filter(vendor_id=vendor_id)
+        return VendorCoupon.objects.none()
+
+    def list(self, request, *args, **kwargs):
+        vendor_id = request.GET.get('vendor_id')
+        if not vendor_id:
+            return Response({"message": "vendor_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+        return super().list(request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+class VendorCouponRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = VendorCoupon.objects.all()
+    serializer_class = VendorCouponSerializer
+    lookup_field = 'pk'

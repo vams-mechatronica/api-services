@@ -2,6 +2,7 @@ from django.db import models
 from cart.common import AbstractItem
 from accounts.models import DeliveryAddress
 from django.contrib.auth import get_user_model
+from accounts.models import VendorProfile
 
 User = get_user_model()
 
@@ -9,6 +10,21 @@ class Coupon(models.Model):
     code = models.CharField(max_length=20, unique=True)
     discount_percent = models.PositiveIntegerField(default=0)
     active = models.BooleanField(default=True)
+
+
+class VendorCoupon(models.Model):
+    vendor = models.ForeignKey(VendorProfile, on_delete=models.CASCADE, related_name='vendor_coupons')
+    coupon = models.ForeignKey(Coupon, on_delete=models.CASCADE, related_name='vendor_coupons')
+    valid_from = models.DateTimeField()
+    valid_to = models.DateTimeField()
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ('vendor', 'coupon')  # Optional
+
+    def __str__(self):
+        return f"{self.vendor.shop_name} - {self.coupon.code}"
+
 
 
 

@@ -39,7 +39,13 @@ urlpatterns = [
     path('bdas/<int:pk>/', BDAProfileDetailView.as_view(), name='bda-detail'),
 
     path('bank-details/', BankDetailListCreateView.as_view(), name='bank-list-create'),
+    path('vendors/bank-details/', VendorBankDetailsListCreateView.as_view(), name='vendor-bank-list-view'),
     path('bank-details/<int:pk>/', BankDetailDetailView.as_view(), name='bank-detail'),
+
+    path('coupons/', CouponListCreateView.as_view(), name='coupon-list-create'),
+    path('coupons/<int:pk>/', CouponRetrieveUpdateDeleteView.as_view(), name='coupon-detail'),
+    path('vendors/coupons/', VendorCouponListCreateView.as_view(), name='vendor-coupon-list-create'),
+    path('vendors/coupons/<int:pk>/', VendorCouponRetrieveUpdateDeleteView.as_view(), name='vendor-coupon-detail'),
 
     path('wallet/balance/', WalletBalanceView.as_view()),
     path('wallet/recharge/', RechargeWalletAPI.as_view()),
