@@ -26,7 +26,12 @@ class IsAdminOrBDA(BasePermission):
             # OR implement custom role check if you have one.
         )
 
-
+class IsAdminBDAorVendor(BasePermission):
+    """
+    Allow access only to admin, BDA or vendor"""
+    def has_permission(self, request, view):
+        return bool(request.user and request.user.is_authenticated and request.user.role in ('admin','bda','vendor'))
+        
 class IsVendorUser(BasePermission):
     def has_permission(self, request, view):
         return hasattr(request.user, 'vendorprofile')

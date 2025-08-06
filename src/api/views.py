@@ -9,6 +9,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.authentication import TokenAuthentication, BasicAuthentication, SessionAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from .permissions import *
 from .serializers import *
 from datetime import date
@@ -120,7 +121,8 @@ class PasswordLogin(APIView):
 class CategoryListCreateView(generics.ListCreateAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    authentication_classes = (BasicAuthentication, TokenAuthentication,SessionAuthentication)
+    authentication_classes = (BasicAuthentication,TokenAuthentication,SessionAuthentication,JWTAuthentication)
+
 
     def get_permissions(self):
         if self.request.method in ['POST']:
@@ -132,8 +134,8 @@ class CategoryListCreateView(generics.ListCreateAPIView):
 class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    authentication_classes = (BasicAuthentication, TokenAuthentication,SessionAuthentication)
-
+    permission_classes = (IsAdminBDAorVendor,)
+    authentication_classes = (BasicAuthentication,TokenAuthentication,SessionAuthentication,JWTAuthentication)
 
     def get_permissions(self):
         if self.request.method in ['PUT', 'PATCH', 'DELETE']:
@@ -148,8 +150,9 @@ class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
 # GET (List) + POST (Create)
 class FoodProductListCreateView(generics.ListCreateAPIView):
     serializer_class = FoodProductSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    authentication_classes = (BasicAuthentication, TokenAuthentication,SessionAuthentication)
+    permission_classes = [permissions.IsAuthenticated,IsAdminBDAorVendor]
+    authentication_classes = (BasicAuthentication,TokenAuthentication,SessionAuthentication,JWTAuthentication)
+
 
     filter_backends = [
         DjangoFilterBackend,
@@ -174,9 +177,8 @@ class FoodProductListCreateView(generics.ListCreateAPIView):
 class FoodProductDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = FoodDetail.objects.all()
     serializer_class = FoodProductSerializer
-    permission_classes = [permissions.IsAuthenticated, IsVendorOrReadOnly]
-    authentication_classes = (BasicAuthentication, TokenAuthentication,SessionAuthentication)
-
+    permission_classes = [permissions.IsAuthenticated, IsAdminBDAorVendor]
+    authentication_classes = (BasicAuthentication,TokenAuthentication,SessionAuthentication,JWTAuthentication)
 
 # --- Customer Profile CRUD ---
 class CustomerProfileListCreateView(generics.ListCreateAPIView):
@@ -186,6 +188,8 @@ class CustomerProfileListCreateView(generics.ListCreateAPIView):
 
 class CustomerProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CustomerProfile.objects.all()
+    permission_classes = (IsAdminBDAorVendor,)
+    authentication_classes = (TokenAuthentication,JWTAuthentication,BasicAuthentication,SessionAuthentication)
     serializer_class = CustomerProfileSerializer
 
 
@@ -198,7 +202,8 @@ class VendorProfileListCreateView(generics.ListCreateAPIView):
     ]
     search_fields = ('shop_name',)
     filterset_fields = ('category',)
-    permission_classes = (AllowAny,)
+    permission_classes = (IsAdminBDAorVendor,)
+    authentication_classes = (BasicAuthentication,TokenAuthentication,JWTAuthentication,SessionAuthentication)
     queryset = VendorProfile.objects.all()
     serializer_class = VendorProfileSerializer
 
@@ -233,7 +238,7 @@ class BankDetailDetailView(generics.RetrieveUpdateDestroyAPIView):
 class VendorBankDetailsListCreateView(generics.ListAPIView):
     serializer_class = BankDetailSerializer
     permission_classes = (IsAdminOrBDA,)
-    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication)
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
 
     def get_queryset(self):
         vendor_id = self.request.GET.get('vendor_id')
@@ -288,7 +293,7 @@ class VendorProductsListView(generics.ListAPIView):
 
 class WalletBalanceView(APIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication)
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
 
     def get(self, request):
         wallet = Wallet.objects.get(user=request.user)
@@ -296,7 +301,7 @@ class WalletBalanceView(APIView):
 
 class RechargeWalletAPI(APIView):
     permission_classes = (IsAuthenticated,)
-    authentication_classes = (BasicAuthentication,TokenAuthentication,SessionAuthentication)
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
     
     def post(self,request,*args, **kwargs):
         amount = request.data.get('amount')
@@ -312,6 +317,7 @@ class RechargeWalletAPI(APIView):
 # views.py
 class InitiateWalletRechargeAPI(APIView):
     permission_classes = [IsAuthenticated]
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
 
     def post(self, request):
         amount = float(request.data.get('amount'))
@@ -370,7 +376,7 @@ class VerifyWalletRechargeAPI(APIView):
 
 class VendorDailyAccessAPI(APIView):
     permission_classes = (IsAuthenticated,)
-    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication)
+    aauthentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
     def post(self, request, *args, **kwargs):
         wallet = Wallet.objects.get(user=request.user)
         if not wallet.is_vendor:
@@ -389,7 +395,7 @@ class VendorDailyAccessAPI(APIView):
 
 
 class ProductListView(generics.ListAPIView):
-    authentication_classes = (TokenAuthentication, )
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
     permission_classes = (AllowAny,)
     serializer_class = ProductSimpleSerializer
     queryset = Product.objects.all().select_related('category', 'vendor').prefetch_related('images')
@@ -407,7 +413,7 @@ class ProductListView(generics.ListAPIView):
 class ProductSubscriptionListCreateView(generics.ListCreateAPIView):
     serializer_class = ProductSubscriptionSerializer
     permission_classes = [IsAuthenticated]
-    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication)
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['frequency', 'status', 'product']
 
@@ -424,6 +430,7 @@ class ProductSubscriptionListCreateView(generics.ListCreateAPIView):
 class ProductSubscriptionDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ProductSubscriptionSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
 
     def get_queryset(self):
         return ProductSubscription.objects.filter(user=self.request.user.id)
@@ -431,6 +438,7 @@ class ProductSubscriptionDetailView(generics.RetrieveUpdateDestroyAPIView):
 class CreateSimpleProductSubscriptionView(generics.GenericAPIView):
     serializer_class = SimpleProductSubscriptionCreateSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data, context={'request': request})
@@ -443,6 +451,7 @@ class CreateSimpleProductSubscriptionView(generics.GenericAPIView):
 
 class AddToCartView(APIView):
     permission_classes = [IsAuthenticated]
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
 
     def post(self, request):
         product_id = request.data.get('product_id')
@@ -470,7 +479,7 @@ class CartView(generics.RetrieveAPIView):
         - User must be authenticated
     """
     permission_classes = [IsAuthenticated]
-    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication)
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
     serializer_class = CartSerializer
 
     def get_object(self):
@@ -481,7 +490,7 @@ class CartView(generics.RetrieveAPIView):
 class AddCartItemView(APIView):
     """This api will be used to add or remove cart items. To remove cart items just pass quantity as 0"""
     permission_classes = [IsAuthenticated]
-    authentication_classes = (BasicAuthentication,TokenAuthentication,SessionAuthentication)
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
 
     def post(self, request):
         serializer = AddCartItemSerializer(data=request.data)
@@ -506,7 +515,7 @@ class OrderListView(generics.ListAPIView):
         - User must be authenticated
     """
     permission_classes = [IsAuthenticated]
-    authentication_classes = (BasicAuthentication,TokenAuthentication,SessionAuthentication)
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
     serializer_class = OrderSerializer
 
     def get_queryset(self):
@@ -530,7 +539,7 @@ class CreateOrderView(APIView):
         - User must be authenticated
     """
     permission_classes = [IsAuthenticated]
-    authentication_classes = (BasicAuthentication,TokenAuthentication,SessionAuthentication)
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
 
 
     def post(self, request):
@@ -553,8 +562,7 @@ class CreateOrderView(APIView):
 class DeliveryAddressView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = DeliveryAddressSerializer
-    authentication_classes = (BasicAuthentication,TokenAuthentication,SessionAuthentication)
-
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
 
     def get_queryset(self):
         return self.serializer_class.Meta.model.objects.filter(user=self.request.user)
@@ -567,7 +575,7 @@ class DeliveryAddressView(generics.ListCreateAPIView):
 
 class InitiatePaymentView(APIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = (BasicAuthentication,TokenAuthentication,SessionAuthentication)
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
 
 
     def post(self, request, *args, **kwargs):
@@ -601,6 +609,7 @@ class InitiatePaymentView(APIView):
 
 class VerifyPaymentView(APIView):
     permission_classes = [IsAuthenticated]
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
 
     def post(self, request, *args, **kwargs):
         data = request.data
@@ -640,7 +649,7 @@ class VerifyPaymentView(APIView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class RazorpayWebhookView(APIView):
-    permission_classes = []
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         payload = request.body
@@ -683,17 +692,20 @@ class TermsCreateView(generics.CreateAPIView):
     queryset = TermsAndConditions.objects.all()
     serializer_class = TermsAndConditionsSerializer
     permission_classes = [IsAdminOrBDA]
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
 
 # FAQ
 class FAQListView(generics.ListAPIView):
     queryset = FAQ.objects.filter(is_active=True)
     serializer_class = FAQSerializer
     permission_classes = [AllowAny]
+    
 
 class FAQCreateView(generics.CreateAPIView):
     queryset = FAQ.objects.all()
     serializer_class = FAQSerializer
     permission_classes = [IsAdminOrBDA]
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
 
 # Banner
 class BannerListView(generics.ListAPIView):
@@ -711,12 +723,14 @@ class BannerCreateView(generics.CreateAPIView):
     queryset = Banner.objects.all()
     serializer_class = BannerSerializer
     permission_classes = [IsAdminOrBDA]
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
 
 
 class ShopAddressCreateView(generics.ListCreateAPIView):
     queryset = ShopAddress.objects.all()
     serializer_class = ShopAddressSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = (BasicAuthentication,TokenAuthentication,SessionAuthentication,JWTAuthentication)
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['vendor']
 
@@ -724,12 +738,14 @@ class ShopAddressDetailView(generics.RetrieveUpdateAPIView):
     queryset = ShopAddress.objects.all()
     serializer_class = ShopAddressSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
 
 
 class ShopDocumentCreateView(generics.ListCreateAPIView):
     queryset = ShopDocument.objects.all()
     serializer_class = ShopDocumentSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['vendor']
     
@@ -738,18 +754,25 @@ class ShopDocumentDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ShopDocument.objects.all()
     serializer_class = ShopDocumentSerializer
     permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
 
 
 class CouponListCreateView(generics.ListCreateAPIView):
     queryset = Coupon.objects.all()
     serializer_class = CouponSerializer
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
 
 class CouponRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Coupon.objects.all()
     serializer_class = CouponSerializer
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
 
 class VendorCouponListCreateView(generics.ListCreateAPIView):
     serializer_class = VendorCouponSerializer
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         vendor_id = self.request.GET.get('vendor_id')
@@ -770,3 +793,5 @@ class VendorCouponRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView
     queryset = VendorCoupon.objects.all()
     serializer_class = VendorCouponSerializer
     lookup_field = 'pk'
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
