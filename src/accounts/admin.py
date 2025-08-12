@@ -26,6 +26,12 @@ class VendorProfileAdmin(admin.ModelAdmin):
 @admin.register(CustomerProfile)
 class CustomerProfileAdmin(admin.ModelAdmin):
     pass
+
+@admin.register(ShopAddress)
+class ShopAddressAdmin(admin.ModelAdmin):
+    list_display = ('id','vendor','created_at','updated_at')
+    
+
     
 
     

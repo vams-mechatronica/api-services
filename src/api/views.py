@@ -235,9 +235,9 @@ class BankDetailDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = BankDetail.objects.all()
     serializer_class = BankDetailSerializer
 
-class VendorBankDetailsListCreateView(generics.ListAPIView):
+class VendorBankDetailsListCreateView(generics.ListCreateAPIView):
     serializer_class = BankDetailSerializer
-    permission_classes = (IsAdminOrBDA,)
+    permission_classes = (IsAdminBDAorVendor,)
     authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
 
     def get_queryset(self):
@@ -405,7 +405,7 @@ class ProductListView(generics.ListAPIView):
         filters.SearchFilter,
         filters.OrderingFilter
     ]
-    filterset_fields = ['category','category__slug']  # or use 'category__id' if FK id isn't working directly
+    filterset_fields = ['category','category__slug','vendor__id','vendor']
     search_fields = ['name', 'description']
     ordering_fields = ['price', 'created_at', 'updated_at', 'stock']
     ordering = ['-created_at']  # default order
@@ -734,7 +734,7 @@ class ShopAddressCreateView(generics.ListCreateAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['vendor']
 
-class ShopAddressDetailView(generics.RetrieveUpdateAPIView):
+class ShopAddressDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ShopAddress.objects.all()
     serializer_class = ShopAddressSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -755,6 +755,20 @@ class ShopDocumentDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ShopDocumentSerializer
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
+
+class ShopDocumentFileListCreateView(generics.ListCreateAPIView):
+    queryset = ShopDocumentFile.objects.all()
+    serializer_class = ShopDocumentFileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [BasicAuthentication, SessionAuthentication, TokenAuthentication, JWTAuthentication]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['shop_doc']  # So you can filter files by ShopDocument
+
+class ShopDocumentFileDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = ShopDocumentFile.objects.all()
+    serializer_class = ShopDocumentFileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [BasicAuthentication, SessionAuthentication, TokenAuthentication, JWTAuthentication]
 
 
 class CouponListCreateView(generics.ListCreateAPIView):

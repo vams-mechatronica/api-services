@@ -230,6 +230,11 @@ class VendorCouponSerializer(serializers.ModelSerializer):
         model = VendorCoupon
         fields = ['id', 'vendor', 'coupon', 'valid_from', 'valid_to', 'active']
 
+    def create(self, validated_data):
+        coupon_data = validated_data.pop('coupon')
+        coupon = Coupon.objects.create(**coupon_data)
+        vendor_coupon = VendorCoupon.objects.create(coupon=coupon, **validated_data)
+        return vendor_coupon
 
 class OrderItemSerializer(serializers.ModelSerializer):
     product = serializers.StringRelatedField()
@@ -293,6 +298,12 @@ class ShopDocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShopDocument
         fields = '__all__'
+
+class ShopDocumentFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShopDocumentFile
+        fields = ['id', 'shop_doc', 'name', 'file', 'created_at', 'updated_at']
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

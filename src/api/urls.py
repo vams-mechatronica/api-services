@@ -34,7 +34,8 @@ urlpatterns = [
 
     path('vendors/shop-documents/', ShopDocumentCreateView.as_view(), name='create-shop-document'),
     path('vendors/shop-documents/<int:pk>/', ShopDocumentDetailView.as_view(), name='shop-document-detail'),
-
+    path('vendors/shop-documents/files/', ShopDocumentFileListCreateView.as_view(), name='shop-documents-files-list-create'),
+    path('vendors/shop-documents/files/<int:pk>/', ShopDocumentFileDetailView.as_view(), name='shop-documents-files-detail'),
     path('bdas/', BDAProfileListCreateView.as_view(), name='bda-list-create'),
     path('bdas/<int:pk>/', BDAProfileDetailView.as_view(), name='bda-detail'),
 

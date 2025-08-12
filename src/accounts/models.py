@@ -80,6 +80,8 @@ class DeliveryAddress(models.Model):
     city = models.CharField(max_length=100)
     zip_code = models.CharField(max_length=10)
     phone_number = models.CharField(max_length=15)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 
 class ShopAddress(models.Model):
@@ -90,8 +92,10 @@ class ShopAddress(models.Model):
     state = models.CharField(max_length=64)
     country = models.CharField(max_length=64)
     pincode = models.CharField(max_length=10)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    latitude = models.DecimalField(max_digits=20, decimal_places=15, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=20, decimal_places=15, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.vendor.shop_name} - {self.city}"
@@ -102,8 +106,24 @@ class ShopDocument(models.Model):
     registration_number = models.CharField(max_length=50, blank=True)
     gstin = models.CharField(max_length=15, blank=True)
     pan_card = models.CharField(max_length=10, blank=True)
-    additional_doc_name = models.CharField(max_length=255, blank=True)
-    additional_doc_file = models.FileField(upload_to='shop_docs/', blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.vendor.shop_name} - Documents"
+
+class ShopDocumentFile(models.Model):
+    shop_doc = models.ForeignKey(ShopDocument, on_delete=models.CASCADE, related_name='files')
+    name = models.CharField(max_length=255, blank=True)
+    file = models.FileField(upload_to='shop_docs/', blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "ShopDocumentFile"
+        verbose_name_plural = "ShopDocumentFiles"
+
+    def __str__(self):
+        return self.name
+

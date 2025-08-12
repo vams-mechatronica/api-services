@@ -9,7 +9,7 @@ class WhatsAppGateway:
     - Order updates
     """
     def __init__(self, clients=None):
-        self.clients = clients or [InfobipWhatsAppClient(), TwilioWhatsAppClient()]
+        self.clients = clients or [TwilioWhatsAppClient()]
 
     def send_otp(self, phone_number, otp_code):
         template_id = "otp_auth_wa"
