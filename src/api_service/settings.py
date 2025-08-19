@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -198,7 +200,7 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # fallback
 ]
 
-import os
+# import os
 INFOBIP_API_KEY = os.getenv('INFOBIP_API_KEY')
 INFOBIP_SEND_TEMPLATE_MESSAGE_API_URL = "https://2vmy9l.api.infobip.com/whatsapp/1/message/template"
 INFOBIP_BASE_URL = "https://2vmy9l.api.infobip.com"

@@ -3,6 +3,9 @@ from django.utils import timezone
 from datetime import timedelta
 from random import randint
 from notifications.utils.whatsapp.whatsapp_gateway import WhatsAppGateway
+from notifications.utils.sms.twilio_client import TwilioSMSService
+from notifications.utils.sms.services import OTPService as Twilio_OTPService
+from django.conf import settings
 
 class OTPService:
 
@@ -11,7 +14,7 @@ class OTPService:
         return str(randint(1000,9999))
     
     @staticmethod
-    def generate_otp(phone_number):
+    def generate_otp(phone_number,send_as_sms=True):
         otp_code = OTPService.generate_random_otp()
         expires_at = timezone.now() + timedelta(minutes=5)
         OTPRecord.objects.create(
@@ -19,7 +22,14 @@ class OTPService:
             otp_code=otp_code,
             expires_at=expires_at
         )
-        # WhatsAppGateway().send_otp(phone_number, otp_code)
+        if not send_as_sms:
+            WhatsAppGateway().send_otp(phone_number, otp_code)
+        else:
+            sms_service = TwilioSMSService(settings.TWILIO_ACCOUNT_SID,\
+                                            settings.TWILIO_AUTH_TOKEN,\
+                                            settings.TWILIO_WHATSAPP_NUMBER)
+            otp_service = Twilio_OTPService(sms_service)
+            sid = otp_service.send_otp("+"+phone_number.replace('+',''), otp_code)
         return otp_code
 
     @staticmethod
