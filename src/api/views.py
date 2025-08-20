@@ -10,7 +10,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.authentication import TokenAuthentication, BasicAuthentication, SessionAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.pagination import PageNumberPagination
+from .utils import CustomPagePagination
 from .permissions import *
 from .serializers import *
 from datetime import date
@@ -123,7 +123,7 @@ class CategoryListCreateView(generics.ListCreateAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     authentication_classes = (BasicAuthentication,TokenAuthentication,SessionAuthentication,JWTAuthentication)
-    pagination_class = PageNumberPagination
+    pagination_class = CustomPagePagination
 
     def get_permissions(self):
         if self.request.method in ['POST']:
