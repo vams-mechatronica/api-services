@@ -133,6 +133,10 @@ class CategoryListCreateView(generics.ListCreateAPIView):
         return [permissions.AllowAny()]
     
     def get_queryset(self):
+        if_parent_category = self.request.GET.get('parent_category_only',False)
+        if if_parent_category:
+            return self.queryset.filter(parent_category=None)
+
         return self.queryset.exclude(parent_category=None)
 
 # GET: Retrieve, PUT/PATCH: Update, DELETE (Admin/BDA only)
