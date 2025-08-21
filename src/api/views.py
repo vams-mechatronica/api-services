@@ -125,7 +125,7 @@ class CategoryListCreateView(generics.ListCreateAPIView):
     authentication_classes = (BasicAuthentication,TokenAuthentication,SessionAuthentication,JWTAuthentication)
     pagination_class = CustomPagePagination
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['parent_category'] 
+    filterset_fields = ['parent_category','parent_category__slug'] 
 
     def get_permissions(self):
         if self.request.method in ['POST']:
