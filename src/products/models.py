@@ -27,7 +27,8 @@ class Product(models.Model):
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField()
-    image = models.ImageField(upload_to='products/')
+    unit = models.ForeignKey("Unit", verbose_name=_("unit"), on_delete=models.SET_NULL,null=True, blank=True)
+    image = models.ImageField(upload_to='products/', null=True,blank=True)
     product_type = models.CharField(max_length=20, choices=PRODUCT_TYPES)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -39,6 +40,15 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+class Unit(models.Model):
+    name = models.CharField(max_length=50)
+    code = models.CharField(max_length=20)
+    product_type = models.CharField(max_length=20, choices=Product.PRODUCT_TYPES)
+
+    def __str__(self):
+        return f"{self.name} ({self.code})"
+
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')

@@ -49,9 +49,16 @@ class CustomerProfile(BaseProfile):
     bank_details = GenericRelation(BankDetail)
 
 class VendorProfile(BaseProfile):
+    PRODUCT_TYPES = (
+        ('food', 'Food'),
+        ('electronic', 'Electronic'),
+        ('service', 'Service'),
+        # Add more as needed
+    )
     shop_name = models.CharField(max_length=255)
     shop_address = models.TextField()
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
+    category = models.CharField(max_length=20, choices=PRODUCT_TYPES, default='food')
+    sub_category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
     bda = models.ForeignKey('BDAProfile', null=True, blank=True, on_delete=models.SET_NULL)
     trial_ends_at = models.DateField(null=True, blank=True)
     bank_details = GenericRelation(BankDetail)

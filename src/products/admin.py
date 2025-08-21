@@ -5,4 +5,10 @@ from .models import *
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('name','sku','vendor')
+
+@admin.register(Unit)
+class UnitAdmin(admin.ModelAdmin):
+    list_display = ('name','code','product_type')
+    
+
     

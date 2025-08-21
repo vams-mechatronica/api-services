@@ -88,7 +88,7 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = [
             'id', 'name', 'slug', 'sku', 'vendor', 'category', 'description',
-            'price', 'stock', 'image', 'product_type', 'created_at', 'updated_at',
+            'price','unit', 'stock', 'image', 'product_type', 'created_at', 'updated_at',
             'images', 'detail'
         ]
 
@@ -343,3 +343,9 @@ class VendorDetailSerializer(serializers.ModelSerializer):
             'documents',
             'is_in_trial',
         ]
+
+# serializers.py
+class UnitSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Unit
+        fields = ['id', 'name', 'code','product_type']

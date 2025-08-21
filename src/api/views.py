@@ -124,12 +124,16 @@ class CategoryListCreateView(generics.ListCreateAPIView):
     serializer_class = CategorySerializer
     authentication_classes = (BasicAuthentication,TokenAuthentication,SessionAuthentication,JWTAuthentication)
     pagination_class = CustomPagePagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['parent_category'] 
 
     def get_permissions(self):
         if self.request.method in ['POST']:
             return [permissions.IsAuthenticated(), IsAdminOrBDA()]
         return [permissions.AllowAny()]
-
+    
+    def get_queryset(self):
+        return self.queryset.exclude(parent_category=None)
 
 # GET: Retrieve, PUT/PATCH: Update, DELETE (Admin/BDA only)
 class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -276,21 +280,28 @@ class VendorBankDetailsListCreateView(generics.ListCreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class VendorProductsListView(generics.ListAPIView):
-    permission_classes = (AllowAny,)
-    serializer_class = FoodProductSerializer
+class VendorProductsListView(generics.ListCreateAPIView):
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
+    permission_classes = (IsAdminBDAorVendor,)
+    serializer_class = ProductSerializer
 
     def get_queryset(self):
         vendor_id = self.request.GET.get('vendor_id')
         if not vendor_id:
-            return FoodDetail.objects.none()
-        return FoodDetail.objects.filter(product__vendor_id=vendor_id)
+            return Product.objects.none()
+        return Product.objects.filter(vendor_id=vendor_id)
 
     def list(self, request, *args, **kwargs):
         vendor_id = self.request.GET.get('vendor_id')
         if not vendor_id:
             return Response({'message': 'vendor_id is compulsory'}, status=status.HTTP_400_BAD_REQUEST)
         return super().list(request, *args, **kwargs)
+
+class VendorProductsUpdateView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
 
 class WalletBalanceView(APIView):
     permission_classes = [IsAuthenticated]
@@ -810,3 +821,12 @@ class VendorCouponRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView
     lookup_field = 'pk'
     permission_classes = (IsAuthenticated,)
     authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
+
+
+class UnitListView(generics.ListAPIView):
+    queryset = Unit.objects.all()
+    serializer_class = UnitSerializer
+    permission_classes = [AllowAny]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['product_type'] 
+

@@ -17,7 +17,7 @@ urlpatterns = [
     path('food-products/<int:pk>/', FoodProductDetailView.as_view()),
 
     path('products/',ProductListView.as_view()),
-
+    path('units/', UnitListView.as_view(), name='unit-list'),
     path('subscriptions/', ProductSubscriptionListCreateView.as_view(), name='subscription-list-create'),
     path('subscriptions/<int:pk>/', ProductSubscriptionDetailView.as_view(), name='subscription-detail'),
     path('subscriptions/create/', CreateSimpleProductSubscriptionView.as_view(), name='simple-subscription-create'),
@@ -27,7 +27,8 @@ urlpatterns = [
 
     path('vendors/', VendorProfileListCreateView.as_view(), name='vendor-list-create'),
     path('vendors/<int:pk>/', VendorProfileDetailView.as_view(), name='vendor-detail'),
-    path('vendors/product/',VendorProductsListView.as_view(),name="vendor-product-list"),
+    path('vendors/products/',VendorProductsListView.as_view(),name="vendor-product-list"),
+    path('vendors/product/<int:pk>',VendorProductsUpdateView.as_view(),name="vendor-product-update"),
 
     path('vendors/shop-address/', ShopAddressCreateView.as_view(), name='create-shop-address'),
     path('vendors/shop-address/<int:pk>/', ShopAddressDetailView.as_view(), name='shop-address-detail'),
