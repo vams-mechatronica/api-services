@@ -51,13 +51,13 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class VendorProfileSerializer(serializers.ModelSerializer):
-    category_name = serializers.SerializerMethodField()
+    sub_category_name = serializers.SerializerMethodField()
     class Meta:
         model = VendorProfile
         fields = '__all__'
     
-    def get_category_name(self,obj):
-        return obj.category.name
+    def get_sub_category_name(self,obj):
+        return obj.sub_category.name
 
 class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -322,7 +322,7 @@ class BDASerializer(serializers.ModelSerializer):
 
 class VendorDetailSerializer(serializers.ModelSerializer):
     user = UserSerializer()
-    category = CategorySerializer()
+    sub_category = CategorySerializer()
     bda = BDASerializer()
     bank_details = BankDetailSerializer(many=True)
     shop_location = ShopAddressSerializer()
@@ -336,6 +336,7 @@ class VendorDetailSerializer(serializers.ModelSerializer):
             'shop_name',
             'shop_address',
             'category',
+            'sub_category',
             'bda',
             'trial_ends_at',
             'bank_details',

@@ -206,7 +206,7 @@ class VendorProfileListCreateView(generics.ListCreateAPIView):
         filters.OrderingFilter,
     ]
     search_fields = ('shop_name',)
-    filterset_fields = ('category',)
+    filterset_fields = ('sub_category','category')
     permission_classes = (IsAdminBDAorVendor,)
     authentication_classes = (BasicAuthentication,TokenAuthentication,JWTAuthentication,SessionAuthentication)
     queryset = VendorProfile.objects.all()
