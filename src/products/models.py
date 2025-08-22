@@ -16,30 +16,40 @@ class Product(models.Model):
         ('food', 'Food'),
         ('electronic', 'Electronic'),
         ('service', 'Service'),
-        # Add more as needed
     )
 
     name = models.CharField(max_length=255)
     slug = models.SlugField(unique=True, max_length=120, null=True, blank=True)
-    sku = models.CharField(max_length=100, unique=True, default=GenerateUUID.generate_sku(prefix='VAMS-SKU'))
+    sku = models.CharField(max_length=100, unique=True, editable=False)  # no default here
     vendor = models.ForeignKey(VendorProfile, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField()
-    unit = models.ForeignKey("Unit", verbose_name=_("unit"), on_delete=models.SET_NULL,null=True, blank=True)
-    image = models.ImageField(upload_to='products/', null=True,blank=True)
+    unit = models.ForeignKey("Unit", verbose_name=_("unit"), on_delete=models.SET_NULL, null=True, blank=True)
+    image = models.ImageField(upload_to='products/', null=True, blank=True)
     product_type = models.CharField(max_length=20, choices=PRODUCT_TYPES)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
+        # auto slug
         if not self.slug:
             self.slug = slugify(self.name)
+
+        # auto sku
+        if not self.sku:
+            self.sku = GenerateUUID.generate_sku(prefix='VAMS-SKU')
+
+            # Ensure uniqueness (in case GenerateUUID returns duplicate)
+            while Product.objects.filter(sku=self.sku).exists():
+                self.sku = GenerateUUID.generate_sku(prefix='VAMS-SKU')
+
         super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
+
 
 class Unit(models.Model):
     name = models.CharField(max_length=50)
