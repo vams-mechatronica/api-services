@@ -212,7 +212,7 @@ class VendorProfileListCreateView(generics.ListCreateAPIView):
     search_fields = ('shop_name',)
     filterset_fields = ('sub_category','category')
     permission_classes = (IsAdminBDAorVendor,)
-    authentication_classes = (BasicAuthentication,TokenAuthentication,JWTAuthentication,SessionAuthentication)
+    authentication_classes = (JWTAuthentication,SessionAuthentication)
     queryset = VendorProfile.objects.all()
     serializer_class = VendorProfileSerializer
 
