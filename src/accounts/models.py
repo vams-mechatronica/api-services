@@ -40,6 +40,8 @@ class BankDetail(models.Model):
 
 class BaseProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         abstract = True
@@ -65,6 +67,9 @@ class VendorProfile(BaseProfile):
 
     def is_in_trial(self):
         return self.trial_ends_at and timezone.now().date() <= self.trial_ends_at
+    
+    def get_phone_number(self):
+        return self.user.phone_number
 
 class BDAProfile(BaseProfile):
     region = models.CharField(max_length=255)
