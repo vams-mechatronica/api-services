@@ -21,7 +21,7 @@ class BankDetailAdmin(admin.ModelAdmin):
 
 @admin.register(VendorProfile)
 class VendorProfileAdmin(admin.ModelAdmin):
-    list_display = ('shop_name','get_phone_number','category','sub_category','bda','trial_end_at','created_at','updated_at')
+    list_display = ('shop_name','get_phone_number','category','sub_category','bda','trial_ends_at','created_at','updated_at')
 
 @admin.register(CustomerProfile)
 class CustomerProfileAdmin(admin.ModelAdmin):
