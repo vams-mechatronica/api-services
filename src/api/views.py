@@ -520,6 +520,42 @@ class AddCartItemView(APIView):
 
         return Response({'message': 'Item updated successfully'}, status=200)
 
+class UpdateCartItemView(APIView):
+    """Update quantity of a cart item"""
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request):
+        serializer = AddCartItemSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        product_id = serializer.validated_data['product_id']
+        quantity = serializer.validated_data['quantity']
+
+        cart, _ = Cart.objects.get_or_create(user=request.user)
+        item = add_or_update_cart_item(cart, product_id, quantity)
+
+        return Response(
+            {"message": "Cart item updated successfully"},
+            status=status.HTTP_200_OK
+        )
+
+
+class DeleteCartItemView(APIView):
+    """Delete a cart item by product_id"""
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, product_id):
+        cart = get_object_or_404(Cart, user=request.user)
+        item = get_object_or_404(cart.items, product__id=product_id)
+        item.delete()
+
+        return Response(
+            {"message": "Cart item deleted successfully"},
+            status=status.HTTP_204_NO_CONTENT
+        )
+
+
+
 class OrderListView(generics.ListAPIView):
     """
     List all orders placed by the authenticated user.
