@@ -192,7 +192,7 @@ class SimpleProductSubscriptionCreateSerializer(serializers.Serializer):
 class ProductSummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ['id', 'name', 'price']
+        fields = ['id', 'name', 'price', 'image']
 
 class CartItemSerializer(serializers.ModelSerializer):
     product = ProductSummarySerializer(read_only=True)
