@@ -149,10 +149,41 @@ class ProductSimpleSerializer(serializers.ModelSerializer):
         ]
 
 class ProductSubscriptionSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
+    start_date = serializers.DateField()
+    frequency = serializers.ChoiceField(choices=ProductSubscription._meta.get_field('frequency').choices)
+    status = serializers.ChoiceField(choices=ProductSubscription._meta.get_field('status').choices)
+    quantity = serializers.IntegerField(min_value=1)
+
     class Meta:
         model = ProductSubscription
-        fields = '__all__'
-        read_only_fields = ['created_at', 'updated_at', 'last_renewed']
+        fields = [
+            'user', 'product', 'start_date', 'end_date', 'frequency', 'status',
+            'last_renewed', 'next_renewal_date', 'quantity', 'price',
+            'remarks', 'eligible_for_delivery', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['created_at', 'updated_at', 'last_renewed', 'price', 'eligible_for_delivery', 'next_renewal_date', 'end_date']
+
+    def create(self, validated_data):
+        product = validated_data['product']
+
+        # Set price from product
+        validated_data['price'] = product.price if hasattr(product, 'price') else 0.0
+
+        # Set eligible_for_delivery based on product type
+        validated_data['eligible_for_delivery'] = product.product_type != 'service'
+
+        # If start_date is not set, use today
+        if 'start_date' not in validated_data or validated_data['start_date'] is None:
+            validated_data['start_date'] = timezone.now().date()
+
+        # Set end_date to 1 year from start_date if not provided
+        if 'end_date' not in validated_data or validated_data['end_date'] is None:
+            validated_data['end_date'] = validated_data['start_date'] + timedelta(days=365)
+
+        return super().create(validated_data)
+
 
 class ProductSubscriptionDetailSerializer(serializers.ModelSerializer):
     product = ProductSerializer()
