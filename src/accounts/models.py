@@ -49,6 +49,9 @@ class BaseProfile(models.Model):
 class CustomerProfile(BaseProfile):
     address = models.TextField()
     bank_details = GenericRelation(BankDetail)
+    
+    def __str__(self):
+        return self.user.phone_number
 
 class VendorProfile(BaseProfile):
     PRODUCT_TYPES = (
@@ -70,11 +73,16 @@ class VendorProfile(BaseProfile):
     
     def get_phone_number(self):
         return self.user.phone_number
+    
+    def __str__(self):
+        return self.shop_name
 
 class BDAProfile(BaseProfile):
     region = models.CharField(max_length=255)
     bank_details = GenericRelation(BankDetail)
 
+    def __str__(self):
+        return self.user.phone_number
 
 class OTPRecord(models.Model):
     phone_number = models.CharField(max_length=15)

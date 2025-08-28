@@ -90,6 +90,13 @@ class VerifyLoginOTP(APIView):
             user_service = UserService(use_jwt=True)  # or False for Django Token
             cuser, created = user_service.get_or_create_user(phone_number.replace('+',''))
             token = user_service.generate_token(cuser)
+
+            if created:
+                # Wallet
+                userWallet, wcreated = Wallet.objects.get_or_create(user=cuser)
+                if wcreated:
+                    userWallet.balance = 0
+                    userWallet.save()
             if not cuser:
                 return Response({'message': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
             if role and role == 'bda':
