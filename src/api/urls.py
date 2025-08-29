@@ -7,6 +7,10 @@ urlpatterns = [
     path('login/request-otp', RequestLoginOTP.as_view()),
     path('login/verify-otp', VerifyLoginOTP.as_view()),
     path('login/password', PasswordLogin.as_view()),
+    
+    # user
+    path("user/", UserDetailAPIView.as_view(), name="user-details"),
+    path("user/addresses/", UserAddressListAPIView.as_view(), name="user-addresses"),
 
     # category
     path('categories/', CategoryListCreateView.as_view(), name='category-list-create'),

@@ -209,6 +209,22 @@ class CustomerProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CustomerProfileSerializer
 
 
+class UserDetailAPIView(generics.RetrieveAPIView):
+    serializer_class = UserSerializerDetail
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return User.objects.get(id=self.request.user.id)
+
+# --- API to get user addresses ---
+class UserAddressListAPIView(generics.ListAPIView):
+    serializer_class = DeliveryAddressSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return DeliveryAddress.objects.filter(user_id=self.request.user.id)
+
+
 # --- Vendor Profile CRUD ---
 class VendorProfileListCreateView(generics.ListCreateAPIView):
     filter_backends = [

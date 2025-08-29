@@ -356,3 +356,15 @@ class VendorDetailSerializer(serializers.ModelSerializer):
             'is_in_trial',
         ]
 
+class UserSerializerDetail(serializers.ModelSerializer):
+    customerprofile = CustomerProfileSerializer(read_only=True)
+    vendorprofile = VendorProfileSerializer(read_only=True)
+    bdaprofile = BDAProfileSerializer(read_only=True)
+
+    class Meta:
+        model = User
+        fields = [
+            'id', 'username', 'email', 'phone_number', 'role',
+            'is_phone_verified', 'is_email_verified',
+            'customerprofile', 'vendorprofile', 'bdaprofile'
+        ]
