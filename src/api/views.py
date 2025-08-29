@@ -132,7 +132,7 @@ class CategoryListCreateView(generics.ListCreateAPIView):
     #authentication_classes = (BasicAuthentication,TokenAuthentication,SessionAuthentication,JWTAuthentication)
     pagination_class = CustomPagePagination
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['parent_category','parent_category__slug'] 
+    filterset_fields = ['parent_category','parent_category__slug', 'is_active'] 
 
     def get_permissions(self):
         if self.request.method in ['POST']:
@@ -428,7 +428,7 @@ class ProductListView(generics.ListAPIView):
         filters.SearchFilter,
         filters.OrderingFilter
     ]
-    filterset_fields = ['category','category__slug','vendor__id','vendor']
+    filterset_fields = ['category','category__slug','vendor__id','vendor','category__is_active']
     search_fields = ['name', 'description']
     ordering_fields = ['price', 'created_at', 'updated_at', 'stock']
     ordering = ['-created_at']  # default order
