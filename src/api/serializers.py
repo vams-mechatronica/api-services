@@ -135,18 +135,20 @@ class ProductCreateSerializer(serializers.ModelSerializer):
             ServiceDetail.objects.create(product=product, **detail_data)
 
         return product
+# serializers.py
+class UnitSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Unit
+        fields = ['id', 'name', 'code','product_type']
 
 
 class ProductSimpleSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, read_only=True)
+    unit = UnitSerializer(read_only=True)
 
     class Meta:
         model = Product
-        fields = [
-            'id', 'name', 'slug', 'sku', 'vendor', 'category',
-            'description', 'price', 'stock', 'image',
-            'product_type', 'created_at', 'updated_at', 'images'
-        ]
+        fields = '__all__'
 
 class ProductSubscriptionSerializer(serializers.ModelSerializer):
     product = ProductSerializer()
@@ -354,8 +356,3 @@ class VendorDetailSerializer(serializers.ModelSerializer):
             'is_in_trial',
         ]
 
-# serializers.py
-class UnitSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Unit
-        fields = ['id', 'name', 'code','product_type']
