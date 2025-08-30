@@ -16,12 +16,14 @@ from .serializers import *
 from datetime import date
 user = get_user_model()
 import hmac, hashlib, json
+from django.db import IntegrityError,InterfaceError, InternalError
+from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from cart.services.cart_service import add_or_update_cart_item
 from orders.services.order_service import create_order_from_cart
-from payments.services.payment_service import create_razorpay_order,verify_razorpay_signature,verify_webhook_signature, process_webhook_payload, create_wallet_recharge_order, verify_payment_signature
+from payments.services.payment_service import RazorpayService
 from scheduler.services.subscription_service import check_wallet_balance_and_update
 
 class RequestSignupOTP(APIView):
@@ -127,7 +129,7 @@ class PasswordLogin(APIView):
 
 # GET: List, POST: Create (Admin/BDA only)
 class CategoryListCreateView(generics.ListCreateAPIView):
-    queryset = Category.objects.all()
+    queryset = Category.objects.annotate(count=Count('product'))
     serializer_class = CategorySerializer
     #authentication_classes = (BasicAuthentication,TokenAuthentication,SessionAuthentication,JWTAuthentication)
     pagination_class = CustomPagePagination
@@ -217,12 +219,16 @@ class UserDetailAPIView(generics.RetrieveAPIView):
         return User.objects.get(id=self.request.user.id)
 
 # --- API to get user addresses ---
-class UserAddressListAPIView(generics.ListAPIView):
+
+class UserAddressListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = DeliveryAddressSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return DeliveryAddress.objects.filter(user_id=self.request.user.id)
+        return DeliveryAddress.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 
 # --- Vendor Profile CRUD ---
@@ -365,7 +371,7 @@ class InitiateWalletRechargeAPI(APIView):
 
         wallet = Wallet.objects.get(user=request.user)
         receipt_id = f"wallet_recharge_{request.user.id}_{timezone.now().timestamp()}"
-        order = create_wallet_recharge_order(amount, receipt_id)
+        order = RazorpayService().create_wallet_recharge_order(amount=amount, receipt_id=receipt_id)
 
         WalletRecharge.objects.create(
             wallet=wallet,
@@ -375,7 +381,8 @@ class InitiateWalletRechargeAPI(APIView):
 
         return Response({
             "order_id": order['id'],
-            "amount": amount,
+            "currency": order['currency'],
+            "amount": order['amount'],
             "razorpay_key": settings.RAZORPAY_KEY_ID
         })
 
@@ -385,17 +392,15 @@ class VerifyWalletRechargeAPI(APIView):
     def post(self, request):
         data = request.data
         try:
-            verify_payment_signature(
-                data['razorpay_order_id'],
-                data['razorpay_payment_id'],
-                data['razorpay_signature']
+            RazorpayService().verify_payment_signature(
+                data['data'].get('razorpay_order_id'),
+                data['data'].get('razorpay_payment_id'),
+                data['data'].get('razorpay_signature')
             )
 
-            recharge = WalletRecharge.objects.get(razorpay_order_id=data['razorpay_order_id'])
+            recharge = WalletRecharge.objects.get(razorpay_order_id=data['data']['razorpay_order_id'])
             if recharge.status != 'success':
-                recharge.status = 'success'
-                recharge.razorpay_payment_id = data['razorpay_payment_id']
-                recharge.save()
+                recharge.mark_successful(data['data']['razorpay_payment_id'],data['data']['razorpay_signature'])
 
                 # Update wallet
                 wallet = recharge.wallet
@@ -482,7 +487,13 @@ class CreateSimpleProductSubscriptionView(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
-        subscription = serializer.save()
+        try:
+            subscription = serializer.save()
+        except IntegrityError:
+            return Response({
+                'message':'Subscription already exists'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
         return Response({
             "message": "Subscription created successfully.",
             "subscription_id": subscription.id
@@ -665,7 +676,7 @@ class InitiatePaymentView(APIView):
                 payment_gateway='razorpay',
             )
 
-            razorpay_order = create_razorpay_order(payment)
+            razorpay_order = RazorpayService().create_razorpay_order(payment)
 
             payment.razorpay_order_id = razorpay_order['id']
             payment.save()
@@ -683,7 +694,7 @@ class InitiatePaymentView(APIView):
             return Response({'error': 'Order not found'}, status=404)
 
 class VerifyPaymentView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     #authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
 
     def post(self, request, *args, **kwargs):
@@ -697,7 +708,7 @@ class VerifyPaymentView(APIView):
             order = Order.objects.get(id=order_id, user=request.user)
             payment = Payment.objects.get(order_id=order_id)
 
-            verify_razorpay_signature(payment_id, razorpay_order_id, signature)
+            RazorpayService().verify_payment_signature(payment_id, razorpay_order_id, signature)
 
             payment.razorpay_payment_id = payment_id
             payment.razorpay_signature = signature
@@ -730,10 +741,10 @@ class RazorpayWebhookView(APIView):
         payload = request.body
         received_signature = request.headers.get("X-Razorpay-Signature")
 
-        if not verify_webhook_signature(payload, received_signature):
+        if not RazorpayService().verify_webhook_signature(payload, received_signature):
             return Response({'detail': 'Invalid signature'}, status=status.HTTP_400_BAD_REQUEST)
 
-        process_webhook_payload(payload)
+        RazorpayService().process_webhook_payload(payload)
         return Response({'detail': 'Webhook received'}, status=status.HTTP_200_OK)
 
 class RetryPaymentView(APIView):

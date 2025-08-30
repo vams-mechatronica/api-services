@@ -10,7 +10,7 @@ urlpatterns = [
     
     # user
     path("user/", UserDetailAPIView.as_view(), name="user-details"),
-    path("user/addresses/", UserAddressListAPIView.as_view(), name="user-addresses"),
+    path("user/addresses/", UserAddressListCreateAPIView.as_view(), name="user-addresses"),
 
     # category
     path('categories/', CategoryListCreateView.as_view(), name='category-list-create'),

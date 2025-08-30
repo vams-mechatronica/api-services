@@ -10,5 +10,10 @@ class WalletAdmin(admin.ModelAdmin):
 class WalletTransactionAdmin(admin.ModelAdmin):
     pass
     
+@admin.register(WalletRecharge)
+class WalletRechargeAdmin(admin.ModelAdmin):
+    pass
+    
+
 
     

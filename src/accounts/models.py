@@ -96,13 +96,18 @@ class OTPRecord(models.Model):
 
 class DeliveryAddress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=50,default="",blank=True,null=True)
     address_line = models.TextField()
     city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100,default="",blank=True,null=True)
     zip_code = models.CharField(max_length=10)
     phone_number = models.CharField(max_length=15)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        verbose_name = "DeliveryAddress"
+        verbose_name_plural = "DeliveryAddress"
 
 class ShopAddress(models.Model):
     vendor = models.OneToOneField(VendorProfile, on_delete=models.CASCADE, related_name='shop_location')

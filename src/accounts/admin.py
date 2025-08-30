@@ -30,6 +30,12 @@ class CustomerProfileAdmin(admin.ModelAdmin):
 @admin.register(ShopAddress)
 class ShopAddressAdmin(admin.ModelAdmin):
     list_display = ('id','vendor','created_at','updated_at')
+
+@admin.register(DeliveryAddress)
+class DeliveryAddressAdmin(admin.ModelAdmin):
+    list_display = ('user','address_line','city','created_at')
+    
+
     
 
     

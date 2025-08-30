@@ -23,9 +23,14 @@ class UserSignupSerializer(serializers.ModelSerializer):
         return attrs
 
 class CategorySerializer(serializers.ModelSerializer):
+    count = serializers.IntegerField(read_only=True)
     class Meta:
         model = Category
         fields = '__all__'
+    
+    # def get_count(self,obj):
+    #     return Product.objects.filter(category__pk=obj.pk).count()
+
 
 class FoodProductSerializer(serializers.ModelSerializer):
     class Meta:
@@ -78,7 +83,7 @@ class BankDetailSerializer(serializers.ModelSerializer):
 class WalletSerializer(serializers.ModelSerializer):
     class Meta:
         model = Wallet
-        fields = ['balance', 'is_vendor']
+        fields = ['balance']
 
 class ProductSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, read_only=True)
@@ -190,6 +195,7 @@ class SimpleProductSubscriptionCreateSerializer(serializers.Serializer):
             frequency=validated_data['frequency'],
             quantity=validated_data['quantity'],
             status='active',
+            price=(float(product.price) * float(validated_data['quantity']))
         )
 
 class ProductSummarySerializer(serializers.ModelSerializer):
@@ -222,12 +228,12 @@ class CartSerializer(serializers.ModelSerializer):
             for item in obj.items.all()
         )
 
-
-
 class DeliveryAddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeliveryAddress
-        fields = ['id', 'user', 'address_line', 'city', 'zip_code', 'phone_number']
+        fields = '__all__'
+        read_only_fields = ('id', 'user', 'created_at', 'updated_at')
+        
 
 class CouponSerializer(serializers.ModelSerializer):
     class Meta:
