@@ -676,18 +676,18 @@ class InitiatePaymentView(APIView):
                 payment_gateway='razorpay',
             )
 
-            razorpay_order = RazorpayService().create_razorpay_order(payment)
+            razorpay_order = RazorpayService().create_order_for_purchase(payment)
 
             payment.razorpay_order_id = razorpay_order['id']
             payment.save()
 
 
             return Response({
+                'order_id': order.id,
                 'razorpay_order_id': razorpay_order['id'],
+                'razorpay_key': settings.RAZORPAY_KEY_ID,
                 'amount': razorpay_order['amount'],
                 'currency': razorpay_order['currency'],
-                'key_id': settings.RAZORPAY_KEY_ID,
-                'order_id': order.id,
             })
 
         except Order.DoesNotExist:
@@ -699,14 +699,13 @@ class VerifyPaymentView(APIView):
 
     def post(self, request, *args, **kwargs):
         data = request.data
-        order_id = data.get('order_id')
-        payment_id = data.get('razorpay_payment_id')
-        razorpay_order_id = data.get('razorpay_order_id')
-        signature = data.get('razorpay_signature')
+        payment_id = data['data'].get('razorpay_payment_id')
+        razorpay_order_id = data['data'].get('razorpay_order_id')
+        signature = data['data'].get('razorpay_signature')
 
         try:
-            order = Order.objects.get(id=order_id, user=request.user)
-            payment = Payment.objects.get(order_id=order_id)
+            payment = Payment.objects.get(razorpay_order_id=razorpay_order_id)
+            order = Order.objects.get(id=payment.order.id, user=request.user)
 
             RazorpayService().verify_payment_signature(payment_id, razorpay_order_id, signature)
 

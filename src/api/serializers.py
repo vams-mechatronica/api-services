@@ -255,10 +255,17 @@ class VendorCouponSerializer(serializers.ModelSerializer):
 
 class OrderItemSerializer(serializers.ModelSerializer):
     product = serializers.StringRelatedField()
+    product_image = serializers.SerializerMethodField()
 
     class Meta:
         model = OrderItem
-        fields = ['id', 'product', 'quantity', 'price']
+        fields = ['id', 'product', 'product_image', 'quantity', 'price']
+    
+    def get_product_image(self, obj):
+        request = self.context.get("request")
+        if obj.product and obj.product.image:
+            return request.build_absolute_uri(obj.product.image.url) if request else obj.product.image.url
+        return None
 
 class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -279,7 +286,7 @@ class CreateOrderSerializer(serializers.Serializer):
     cart_id = serializers.IntegerField()
     address_id = serializers.IntegerField()
     payment_method = serializers.ChoiceField(choices=Order.PAYMENT_METHOD_CHOICES)
-    coupon_code = serializers.CharField(required=False, allow_blank=True)
+    coupon_code = serializers.CharField(required=False, allow_blank=True, allow_null=True)
 
 class AddCartItemSerializer(serializers.Serializer):
     product_id = serializers.IntegerField()
