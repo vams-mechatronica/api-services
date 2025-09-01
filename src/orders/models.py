@@ -31,6 +31,7 @@ class VendorCoupon(models.Model):
 class Order(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
+        ('payment-failed', 'Payment Failed'),
         ('processing', 'Processing'),
         ('completed', 'Completed'),
         ('cancelled', 'Cancelled'),
@@ -49,6 +50,7 @@ class Order(models.Model):
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 class OrderItem(AbstractItem):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')

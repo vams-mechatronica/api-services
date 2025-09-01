@@ -14,29 +14,43 @@ def create_order_from_cart(cart, address_id, payment_method, coupon_code=None):
         except Coupon.DoesNotExist:
             pass
 
-    order = Order.objects.create(
+    order, created = Order.objects.get_or_create(
         user=cart.user,
         address=address,
         payment_method=payment_method,
         coupon=coupon,
-        total_price=0
+        status = 'pending',
+        defaults={"total_price": 0},
     )
 
     total = 0
     for item in cart.items.all():
         line_total = item.quantity * item.product.price
         total += line_total
-        OrderItem.objects.create(
+
+        # check if order item already exists for this product
+        order_item, oi_created = OrderItem.objects.get_or_create(
             order=order,
             product=item.product,
-            quantity=item.quantity,
-            price=item.product.price
+            defaults={
+                "quantity": item.quantity,
+                "price": item.product.price,
+            },
         )
+        if not oi_created:
+            # If it already exists, update the quantity to latest cart value
+            order_item.quantity = item.quantity
+            order_item.price = item.product.price
+            order_item.save()
 
     if discount:
         total = total * (1 - discount / 100.0)
 
     order.total_price = round(total, 2)
     order.save()
-    cart.items.all().delete()  # Clear cart after ordering
+
+    # clear the cart
+    cart.items.all().delete()
+
     return order
+

@@ -15,7 +15,7 @@ class RazorpayService:
         razorpay_order = self.client.order.create({
             'amount': int(order.amount * 100),  # amount in paise
             'currency': 'INR',
-            'receipt': f'order_rcptid_{order.id}',
+            'receipt': f'order_rcptid_{order.order.id}',
             'payment_capture': 1
         })
         return razorpay_order
