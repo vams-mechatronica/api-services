@@ -607,6 +607,11 @@ class OrderListView(generics.ListAPIView):
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user)
 
+class OrderRetrieveAPI(generics.RetrieveAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+
+
 
 class CreateOrderView(APIView):
     """
@@ -707,7 +712,7 @@ class VerifyPaymentView(APIView):
             payment = Payment.objects.get(razorpay_order_id=razorpay_order_id)
             order = Order.objects.get(id=payment.order.id, user=request.user)
 
-            RazorpayService().verify_payment_signature(payment_id, razorpay_order_id, signature)
+            paymentVerificationStatus = RazorpayService().verify_payment_signature(razorpay_order_id, payment_id, signature)
 
             payment.razorpay_payment_id = payment_id
             payment.razorpay_signature = signature
@@ -724,7 +729,8 @@ class VerifyPaymentView(APIView):
         except Order.DoesNotExist:
             return Response({'error': 'Order not found'}, status=404)
         except Exception as e:
-            order.payment_status = 'failed'
+            payment.status = 'failed'
+            order.status = 'payment-failed'
             order.save()
             return Response({'error': str(e)}, status=400)
 
