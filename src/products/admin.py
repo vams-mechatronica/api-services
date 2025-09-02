@@ -9,6 +9,12 @@ class ProductAdmin(admin.ModelAdmin):
 @admin.register(Unit)
 class UnitAdmin(admin.ModelAdmin):
     list_display = ('name','code','product_type')
+
+@admin.register(ProductImage)
+class ProductImageAdmin(admin.ModelAdmin):
+    list_display = ('product','image','is_primary')
+    
+
     
 
     

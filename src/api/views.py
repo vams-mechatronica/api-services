@@ -454,6 +454,26 @@ class ProductListView(generics.ListAPIView):
     ordering_fields = ['price', 'created_at', 'updated_at', 'stock']
     ordering = ['-created_at']  # default order
 
+class ProductRetrieveAPI(generics.RetrieveAPIView):
+    permission_classes = (AllowAny,)
+    serializer_class = ProductSimpleSerializer
+    queryset = Product.objects.all().select_related('category', 'vendor').prefetch_related('images')
+
+class RelatedProductsView(generics.ListAPIView):
+    serializer_class = ProductSimpleSerializer
+
+    def get_queryset(self):
+        pk = self.kwargs.get("pk")
+        product = Product.objects.filter(pk=pk).first()
+        if not product:
+            return Product.objects.none()
+
+        return (
+            Product.objects.filter(category=product.category)
+            .exclude(id=product.id)[:4]
+        )
+
+
 class ProductSubscriptionListCreateView(generics.ListCreateAPIView):
     serializer_class = ProductSubscriptionSerializer
     permission_classes = [IsAuthenticated]

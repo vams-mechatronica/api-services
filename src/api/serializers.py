@@ -150,10 +150,19 @@ class UnitSerializer(serializers.ModelSerializer):
 class ProductSimpleSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, read_only=True)
     unit = UnitSerializer(read_only=True)
+    category_name = serializers.SerializerMethodField()
+    vendor = VendorProfileSerializer()
+    final_price = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
         fields = '__all__'
+    
+    def get_category_name(self,obj):
+        return obj.category.name
+    
+    def get_final_price(self,obj):
+        return obj.final_price
 
 class ProductSubscriptionSerializer(serializers.ModelSerializer):
     product = ProductSerializer()
