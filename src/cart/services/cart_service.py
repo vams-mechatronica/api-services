@@ -9,7 +9,7 @@ def add_or_update_cart_item(cart, product_id, quantity):
         cart_item.delete()
     else:
         cart_item.quantity = quantity
-        cart_item.price = product.price * quantity
+        cart_item.price = product.final_price * quantity
         cart_item.save()
 
     return cart_item
