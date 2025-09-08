@@ -10,22 +10,25 @@ def create_order_from_cart(cart, address_id, payment_method, coupon_code=None):
     if coupon_code:
         try:
             coupon = Coupon.objects.get(code=coupon_code, active=True)
-            discount = coupon.discount_percent
+            if cart.get_total_price_after_discount() >= coupon.min_order_amount:
+                if coupon.discount_type == "percentage":
+                    discount = (cart.get_total_price_after_discount() * coupon.discount_value) / 100
+                else:
+                    discount = coupon.discount_value
         except Coupon.DoesNotExist:
             pass
 
-    order, created = Order.objects.get_or_create(
+    order= Order.objects.create(
         user=cart.user,
         address=address,
         payment_method=payment_method,
         coupon=coupon,
-        status = 'pending',
-        defaults={"total_price": 0},
+        status = 'pending',total_price= 0
     )
 
     total = 0
     for item in cart.items.all():
-        line_total = item.quantity * item.product.price
+        line_total = item.quantity * item.product.final_price
         total += line_total
 
         # check if order item already exists for this product
@@ -34,23 +37,23 @@ def create_order_from_cart(cart, address_id, payment_method, coupon_code=None):
             product=item.product,
             defaults={
                 "quantity": item.quantity,
-                "price": item.product.price,
+                "price": item.product.final_price,
             },
         )
         if not oi_created:
             # If it already exists, update the quantity to latest cart value
             order_item.quantity = item.quantity
-            order_item.price = item.product.price
+            order_item.price = item.product.final_price
             order_item.save()
 
     if discount:
-        total = total * (1 - discount / 100.0)
+        total = total - discount
 
     order.total_price = round(total, 2)
     order.save()
 
-    # clear the cart
-    cart.items.all().delete()
+    # clear the cart (moved to clear after payment success)
+    # cart.items.all().delete()
 
     return order
 

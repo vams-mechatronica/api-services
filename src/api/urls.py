@@ -53,6 +53,7 @@ urlpatterns = [
 
     path('coupons/', CouponListCreateView.as_view(), name='coupon-list-create'),
     path('coupons/<int:pk>/', CouponRetrieveUpdateDeleteView.as_view(), name='coupon-detail'),
+    path('apply-coupon/', ApplyCouponView.as_view(), name='apply-coupon'),
     path('vendors/coupons/', VendorCouponListCreateView.as_view(), name='vendor-coupon-list-create'),
     path('vendors/coupons/<int:pk>/', VendorCouponRetrieveUpdateDeleteView.as_view(), name='vendor-coupon-detail'),
 

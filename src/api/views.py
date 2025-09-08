@@ -743,6 +743,10 @@ class VerifyPaymentView(APIView):
             order.status = 'completed'
             order.save()
 
+            # clear cart after payment success.
+            cart = Cart.objects.get(user=request.user)
+            cart.items.all().delete()
+
 
             return Response({'message': 'Payment verified successfully'}, status=200)
 
@@ -893,6 +897,32 @@ class CouponRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CouponSerializer
     permission_classes = (IsAuthenticated,)
     #authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
+
+class ApplyCouponView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        code = request.data.get("code")
+        try:
+            coupon = Coupon.objects.get(code=code)
+            cart = Cart.objects.get(user=request.user)
+
+            if not coupon.active:
+                return Response({"error": "Coupon expired or inactive"}, status=400)
+
+            if cart.get_total() < coupon.min_order_amount:
+                return Response({"error": "Minimum order amount not met"}, status=400)
+
+            cart.coupon = coupon
+            cart.save()
+
+            return Response({
+                "success": True,
+                "discounted_total": cart.get_total(),
+                "coupon": coupon.code
+            })
+        except Coupon.DoesNotExist:
+            return Response({"error": "Invalid coupon code"}, status=400)
 
 class VendorCouponListCreateView(generics.ListCreateAPIView):
     serializer_class = VendorCouponSerializer

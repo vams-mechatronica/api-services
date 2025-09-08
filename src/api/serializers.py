@@ -210,7 +210,7 @@ class SimpleProductSubscriptionCreateSerializer(serializers.Serializer):
 class ProductSummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ['id', 'name', 'price', 'image']
+        fields = ['id', 'name', 'price', 'final_price','discount_type','discount_value','image']
 
 class CartItemSerializer(serializers.ModelSerializer):
     product = ProductSummarySerializer(read_only=True)
@@ -225,10 +225,13 @@ class CartItemSerializer(serializers.ModelSerializer):
 class CartSerializer(serializers.ModelSerializer):
     items = CartItemSerializer(many=True, read_only=True)
     total = serializers.SerializerMethodField()
+    total_price_before_discount = serializers.SerializerMethodField()
+    total_price_after_dicount = serializers.SerializerMethodField()
+    total_discount = serializers.SerializerMethodField()
 
     class Meta:
         model = Cart
-        fields = ['id', 'user', 'created_at', 'items', 'total']
+        fields = ['id', 'user', 'created_at', 'items', 'total','total_discount','total_price_before_discount','total_price_after_dicount']
 
     def get_total(self, obj):
         """Calculate cart total based on item quantity * product price"""
@@ -236,6 +239,15 @@ class CartSerializer(serializers.ModelSerializer):
             item.quantity * item.product.price 
             for item in obj.items.all()
         )
+    
+    def get_total_price_before_discount(self, obj):
+        return obj.get_total_price_before_discount()
+    
+    def get_total_price_after_dicount(self, obj):
+        return obj.get_total_price_after_discount()
+    
+    def get_total_discount(self, obj):
+        return obj.get_total_discount()
 
 class DeliveryAddressSerializer(serializers.ModelSerializer):
     class Meta:
@@ -247,7 +259,7 @@ class DeliveryAddressSerializer(serializers.ModelSerializer):
 class CouponSerializer(serializers.ModelSerializer):
     class Meta:
         model = Coupon
-        fields = ['id', 'code', 'discount_percent', 'active']
+        fields = ['id', 'code','discount_type', 'discount_value', 'active']
 
 class VendorCouponSerializer(serializers.ModelSerializer):
     coupon = CouponSerializer()

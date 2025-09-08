@@ -11,4 +11,9 @@ class OrderAdmin(admin.ModelAdmin):
 class OrderItemAdmin(admin.ModelAdmin):
     pass
     
+@admin.register(Coupon)
+class CouponAdmin(admin.ModelAdmin):
+    pass
+    
+
 

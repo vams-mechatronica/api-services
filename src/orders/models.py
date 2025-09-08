@@ -3,12 +3,19 @@ from cart.common import AbstractItem
 from accounts.models import DeliveryAddress
 from django.contrib.auth import get_user_model
 from accounts.models import VendorProfile
+from django.utils import timezone
 
 User = get_user_model()
 
 class Coupon(models.Model):
     code = models.CharField(max_length=20, unique=True)
-    discount_percent = models.PositiveIntegerField(default=0)
+    discount_type = models.CharField(
+        max_length=10,
+        choices=(("percentage", "Percentage"), ("fixed", "Fixed Amount"))
+    )
+    discount_value = models.DecimalField(max_digits=10, decimal_places=2)
+    min_order_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    usage_limit = models.IntegerField(default=1)
     active = models.BooleanField(default=True)
 
 
@@ -24,6 +31,10 @@ class VendorCoupon(models.Model):
 
     def __str__(self):
         return f"{self.vendor.shop_name} - {self.coupon.code}"
+    
+    def is_valid(self):
+        now = timezone.now()
+        return self.active and self.valid_from <= now <= self.valid_to
 
 
 
