@@ -25,9 +25,11 @@ urlpatterns = [
     path('food-products/', FoodProductListCreateView.as_view()),
     path('food-products/<int:pk>/', FoodProductDetailView.as_view()),
 
-    path('product/<int:pk>/',ProductRetrieveAPI.as_view()),
     path('products/',ProductListView.as_view()),
+    path('product/<int:pk>/',ProductRetrieveAPI.as_view()),
+    path('product/<slug:slug>/', ProductRetrieveBySlugAPI.as_view()),
     path("products/<int:pk>/related/", RelatedProductsView.as_view(), name="related-products"),
+    path("products/<slug:slug>/related/", RelatedProductsSlugView.as_view(), name="related-products-slug"),
     
     path('units/', UnitListView.as_view(), name='unit-list'),
     path('subscriptions/', ProductSubscriptionListCreateView.as_view(), name='subscription-list-create'),

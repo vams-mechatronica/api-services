@@ -459,12 +459,33 @@ class ProductRetrieveAPI(generics.RetrieveAPIView):
     serializer_class = ProductSimpleSerializer
     queryset = Product.objects.all().select_related('category', 'vendor').prefetch_related('images')
 
+class ProductRetrieveBySlugAPI(generics.RetrieveAPIView):
+    permission_classes = (AllowAny,)
+    serializer_class = ProductSimpleSerializer
+    queryset = Product.objects.select_related('category', 'vendor').prefetch_related('images')
+    lookup_field = 'slug'  # this is the key change
+
+
 class RelatedProductsView(generics.ListAPIView):
     serializer_class = ProductSimpleSerializer
 
     def get_queryset(self):
         pk = self.kwargs.get("pk")
         product = Product.objects.filter(pk=pk).first()
+        if not product:
+            return Product.objects.none()
+
+        return (
+            Product.objects.filter(category=product.category)
+            .exclude(id=product.id)[:4]
+        )
+
+class RelatedProductsSlugView(generics.ListAPIView):
+    serializer_class = ProductSimpleSerializer
+
+    def get_queryset(self):
+        slug = self.kwargs.get("slug")
+        product = Product.objects.filter(slug=slug).first()
         if not product:
             return Product.objects.none()
 
