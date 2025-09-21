@@ -208,9 +208,13 @@ class SimpleProductSubscriptionCreateSerializer(serializers.Serializer):
         )
 
 class ProductSummarySerializer(serializers.ModelSerializer):
+    unit = serializers.SerializerMethodField()
     class Meta:
         model = Product
-        fields = ['id', 'name', 'price', 'final_price','discount_type','discount_value','image']
+        fields = ['id', 'name', 'price', 'unit','final_price','discount_type','discount_value','image']
+    
+    def get_unit(self, obj):
+        return obj.unit.code
 
 class CartItemSerializer(serializers.ModelSerializer):
     product = ProductSummarySerializer(read_only=True)
