@@ -988,12 +988,16 @@ class CheckDeliveryAvailabilityAPI(APIView):
         pincode = request.query_params.get('pincode')
         sector = request.query_params.get('sector')
 
-        if not pincode or not sector:
-            return Response({"error": "pincode and sector are required"}, status=400)
+        if not pincode:
+            return Response({"error": "pincode is required"}, status=400)
 
-        exists = DeliveryArea.objects.filter(
-            pincode=pincode, sector=sector, is_active=True
-        ).exists()  # async exists
+        queryset = DeliveryArea.objects.filter(
+            pincode=pincode, is_active=True
+        )
+        if sector:
+            queryset = queryset.filter(sector=sector)
+        
+        exists = queryset.exists()
 
         return Response({
             "pincode": pincode,
