@@ -1005,3 +1005,15 @@ class CheckDeliveryAvailabilityAPI(APIView):
             "deliverable": exists,
             "message":"We are delivering at this location." if exists else "Sorry! Currently, We are not delivering at this location."
         })
+
+
+class HeaderCountsAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        cart_count = CartItem.objects.filter(cart__user=request.user).count()
+        subscription_count = ProductSubscription.objects.filter(user=request.user, status='active').count()
+        return Response({
+            'cart_count': cart_count,
+            'subscription_count': subscription_count
+        })

@@ -105,4 +105,5 @@ urlpatterns = [
     path("token/verify/", TokenVerifyView.as_view(), name="token_verify"),
 
     path('check-delivery', CheckDeliveryAvailabilityAPI.as_view(), name='check-delivery'),
+    path('header-counts/', HeaderCountsAPI.as_view(), name='header-counts'),
 ]
