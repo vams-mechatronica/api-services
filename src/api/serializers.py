@@ -8,6 +8,7 @@ from scheduler.models import *
 from cart.models import *
 from orders.models import *
 from personalization.models import *
+from delivery.models import DeliveryArea
 from rest_framework import serializers
 User = get_user_model()
 
@@ -406,3 +407,9 @@ class UserSerializerDetail(serializers.ModelSerializer):
             'is_phone_verified', 'is_email_verified',
             'customerprofile', 'vendorprofile', 'bdaprofile'
         ]
+
+
+class DeliveryAreaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeliveryArea
+        fields = ['id', 'pincode', 'sector', 'is_active']

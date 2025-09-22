@@ -980,3 +980,24 @@ class UnitListView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['product_type'] 
 
+class CheckDeliveryAvailabilityAPI(APIView):
+    def get(self, request, *args, **kwargs):
+        """
+        GET /api/v1/check-delivery/?pincode=110001&sector=Sector-5
+        """
+        pincode = request.query_params.get('pincode')
+        sector = request.query_params.get('sector')
+
+        if not pincode or not sector:
+            return Response({"error": "pincode and sector are required"}, status=400)
+
+        exists = DeliveryArea.objects.filter(
+            pincode=pincode, sector=sector, is_active=True
+        ).exists()  # async exists
+
+        return Response({
+            "pincode": pincode,
+            "sector": sector,
+            "deliverable": exists,
+            "message":"We are delivering at this location." if exists else "Sorry! Currently, We are not delivering at this location."
+        })
