@@ -86,6 +86,15 @@ class WalletSerializer(serializers.ModelSerializer):
         model = Wallet
         fields = ['balance']
 
+class WalletTransactionSerializer(serializers.ModelSerializer):
+    transaction_type = serializers.SerializerMethodField()
+    class Meta:
+        model = WalletTransaction
+        fields = '__all__'
+    
+    def get_transaction_type(self, obj):
+        return obj.get_transaction_type_display()
+
 class ProductSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, read_only=True)
     detail = serializers.SerializerMethodField()
@@ -167,10 +176,15 @@ class ProductSimpleSerializer(serializers.ModelSerializer):
 
 class ProductSubscriptionSerializer(serializers.ModelSerializer):
     product = ProductSerializer()
+    status = serializers.SerializerMethodField()
+
     class Meta:
         model = ProductSubscription
         fields = '__all__'
         read_only_fields = ['created_at', 'updated_at', 'last_renewed']
+    
+    def get_status(self, obj):
+        return obj.get_status_display()
 
 class ProductSubscriptionDetailSerializer(serializers.ModelSerializer):
     product = ProductSerializer()
@@ -304,9 +318,14 @@ class OrderSerializer(serializers.ModelSerializer):
     coupon = CouponSerializer(read_only=True)
     payment = PaymentSerializer(read_only=True)
 
+    status = serializers.SerializerMethodField()
+
     class Meta:
         model = Order
         fields = ['id', 'user', 'total_price', 'coupon', 'address', 'payment_method','payment', 'status', 'created_at', 'items']
+    
+    def get_status(self, obj):
+        return obj.get_status_display()
 
 class CreateOrderSerializer(serializers.Serializer):
     cart_id = serializers.IntegerField()

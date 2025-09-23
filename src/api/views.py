@@ -359,6 +359,16 @@ class RechargeWalletAPI(APIView):
         
         return Response({"message": "Recharge successful", "balance": wallet.balance})
 
+class WalletTransactionAPI(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = WalletTransactionSerializer
+
+    def get_queryset(self):
+        wallet = Wallet.objects.get(user = self.request.user)
+        queryset = WalletTransaction.objects.filter(wallet=wallet).order_by('-timestamp')
+        return queryset
+    
+
 # views.py
 class InitiateWalletRechargeAPI(APIView):
     permission_classes = [IsAuthenticated]
@@ -503,7 +513,7 @@ class ProductSubscriptionListCreateView(generics.ListCreateAPIView):
     filterset_fields = ['frequency', 'status', 'product']
 
     def get_queryset(self):
-        subscriptions = ProductSubscription.objects.filter(user=self.request.user)
+        subscriptions = ProductSubscription.objects.filter(user=self.request.user).order_by('-created_at')
         for sub in subscriptions:
             check_wallet_balance_and_update(sub)
         return subscriptions
@@ -646,7 +656,7 @@ class OrderListView(generics.ListAPIView):
     serializer_class = OrderSerializer
 
     def get_queryset(self):
-        return Order.objects.filter(user=self.request.user)
+        return Order.objects.filter(user=self.request.user).order_by('-created_at')
 
 class OrderRetrieveAPI(generics.RetrieveAPIView):
     queryset = Order.objects.all()

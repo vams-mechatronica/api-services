@@ -66,6 +66,7 @@ urlpatterns = [
 
     path('wallet/balance/', WalletBalanceView.as_view()),
     path('wallet/recharge/', RechargeWalletAPI.as_view()),
+    path('wallet/transactions/', WalletTransactionAPI.as_view()),
     path('wallet/recharge/initiate/', InitiateWalletRechargeAPI.as_view(), name='wallet-recharge-initiate'),
     path('wallet/recharge/verify/', VerifyWalletRechargeAPI.as_view(), name='wallet-recharge-verify'),
     path('wallet/deduct-vendor-access/', VendorDailyAccessAPI.as_view()),
