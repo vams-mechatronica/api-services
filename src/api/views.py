@@ -17,7 +17,7 @@ from datetime import date
 user = get_user_model()
 import hmac, hashlib, json
 from django.db import IntegrityError,InterfaceError, InternalError
-from django.db.models import Count
+from django.db.models import Count, Sum
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -129,7 +129,7 @@ class PasswordLogin(APIView):
 
 # GET: List, POST: Create (Admin/BDA only)
 class CategoryListCreateView(generics.ListCreateAPIView):
-    queryset = Category.objects.annotate(count=Count('product'))
+    queryset = Category.objects.annotate(count=Count('product')).order_by('-updated_at')
     serializer_class = CategorySerializer
     #authentication_classes = (BasicAuthentication,TokenAuthentication,SessionAuthentication,JWTAuthentication)
     pagination_class = CustomPagePagination
@@ -1021,7 +1021,11 @@ class HeaderCountsAPI(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        cart_count = CartItem.objects.filter(cart__user=request.user).count()
+        cart_count = (
+            CartItem.objects
+            .filter(cart__user=request.user)
+            .aggregate(total_qty=Sum('quantity'))
+        )['total_qty'] or 0 
         subscription_count = ProductSubscription.objects.filter(user=request.user, status='active').count()
         return Response({
             'cart_count': cart_count,
