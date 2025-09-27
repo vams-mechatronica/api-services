@@ -25,6 +25,7 @@ from cart.services.cart_service import add_or_update_cart_item
 from orders.services.order_service import create_order_from_cart
 from payments.services.payment_service import RazorpayService
 from scheduler.services.subscription_service import check_wallet_balance_and_update
+from notifications.services import enqueue_message
 
 class RequestSignupOTP(APIView):
     def post(self, request):
@@ -777,6 +778,11 @@ class VerifyPaymentView(APIView):
             # clear cart after payment success.
             cart = Cart.objects.get(user=request.user)
             cart.items.all().delete()
+
+            enqueue_message(recipient='info@vamsmechatronica.in',
+                subject="Order Created",
+                body=f"order #{order.id} has been created successfully.",
+                channel='email')
 
 
             return Response({'message': 'Payment verified successfully'}, status=200)

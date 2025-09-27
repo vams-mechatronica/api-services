@@ -98,14 +98,17 @@ INSTALLED_APPS = [
     'scheduler',
     'wallet',
     'corsheaders',
+    'notifications',
     'personalization',
     'django_celery_results',
     'django_celery_beat',
+    'tracking',
 ]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'tracking.middleware.VisitorTrackingMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -214,11 +217,21 @@ TWILIO_WHATSAPP_NUMBER=os.getenv('TWILIO_WHATSAPP_NUMBER')
 RAZORPAY_KEY_ID = os.getenv('RAZORPAY_API_KEY',"rzp_test_vsgd7Mcsti6q2F")
 RAZORPAY_KEY_SECRET = os.getenv('RAZORPAY_API_KEY_SECRET','tLc1MCLycrF7ySQDTknqh7eC')
 
+# EMAIL
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtpout.secureserver.net'
+EMAIL_PORT = 587
+EMAIL_USE_TLS= True
+EMAIL_HOST_USER = "info@vamsmechatronica.in"
+EMAIL_HOST_PASSWORD = "OneManArmy3$"
 
+# Default email address from which emails will be sent
+DEFAULT_FROM_EMAIL = 'Books Store <info@vamsbookstore.in>'
 
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
+        'rest_framework.authentication.SessionAuthentication', 
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
     'DEFAULT_PERMISSION_CLASSES': [
@@ -245,3 +258,10 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": False,
 }
+
+TRACK_AJAX_REQUESTS = True
+TRACK_ANONYMOUS_USERS = True
+TRACK_PAGEVIEWS = True
+TRACK_IGNORE_STATUS_CODES = [400, 404, 403, 405, 410, 500]
+TRACK_REFERER = True
+TRACK_QUERY_STRING = True
