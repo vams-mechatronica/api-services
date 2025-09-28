@@ -46,16 +46,9 @@ LOGGING = {
     },
 
     'loggers': {
-        # root logger
-        '': {
-            'handlers': ['console', 'file'],
-            'level': 'INFO',
-            'propagate': True,
-        },
-        # custom module logger
         'app': {
             'handlers': ['console', 'file'],
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'propagate': False,
         },
     }

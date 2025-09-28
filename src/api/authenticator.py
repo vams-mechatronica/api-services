@@ -11,7 +11,7 @@ class AuthenticationService:
     OTP_EXPIRY_SECONDS = 300  # 5 minutes
 
     def send_login_otp(self, phone_number):
-        otp = OTPService.generate_otp(phone_number=phone_number)
+        otp = OTPService.generate_otp(phone_number=phone_number,send_as_sms=False)
         cache.set(f'login_otp_{phone_number}', otp, timeout=self.OTP_EXPIRY_SECONDS)
         return otp
 

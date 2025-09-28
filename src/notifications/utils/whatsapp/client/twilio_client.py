@@ -3,6 +3,8 @@ import requests
 from ..base.base_client import WhatsAppBaseClient
 from django.conf import settings
 from requests.auth import HTTPBasicAuth
+from twilio.rest import Client
+import json
 
 class TwilioWhatsAppClient(WhatsAppBaseClient):
     def __init__(self):
@@ -14,21 +16,11 @@ class TwilioWhatsAppClient(WhatsAppBaseClient):
     def send_template_message(self, to, template_id_or_text, parameters=None):
         to_number = f"whatsapp:{to}"
         from_number = f"whatsapp:{self.sender_number}"
-
-        message_body = template_id_or_text.format(*parameters) if parameters else template_id_or_text
-
-        payload = {
-            "To": to_number,
-            "From": from_number,
-            "Body": message_body,
-        }
-
-        response = requests.post(
-            self.base_url,
-            data=payload,
-            auth=HTTPBasicAuth(self.account_sid, self.auth_token),
+        client = Client(self.account_sid, self.auth_token)
+        message = client.messages.create(
+            from_=from_number,
+            to=to_number,
+            content_sid=template_id_or_text,
+            content_variables=json.dumps({'1':parameters[0]})
         )
-
-        if response.status_code in [200, 201]:
-            return response.json()
-        raise Exception(f"Twilio Error {response.status_code}: {response.text}")
+        return message.body

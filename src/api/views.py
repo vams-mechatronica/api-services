@@ -34,7 +34,7 @@ class RequestSignupOTP(APIView):
             return Response({'error': 'Phone number is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
         otp_service = OTPService()
-        otp_service.generate_otp(phone_number)
+        otp_service.generate_otp(phone_number, send_as_sms=False)
 
         return Response({'message': 'OTP sent to WhatsApp.'}, status=status.HTTP_200_OK)
 

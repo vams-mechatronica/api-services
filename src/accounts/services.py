@@ -14,9 +14,20 @@ class OTPService:
         return str(randint(1000,9999))
     
     @staticmethod
-    def generate_otp(phone_number,send_as_sms=True):
+    def generate_otp(phone_number, send_as_sms=None):
+        now = timezone.now()
+        last_otp = (
+            OTPRecord.objects
+            .filter(phone_number=phone_number)
+            .order_by('-created_at')
+            .first()
+        )
+
+        if last_otp and (now - last_otp.created_at) < timedelta(seconds=60):
+            return last_otp.otp_code
+
         otp_code = OTPService.generate_random_otp()
-        expires_at = timezone.now() + timedelta(minutes=5)
+        expires_at = now + timedelta(minutes=5)
         OTPRecord.objects.create(
             phone_number=phone_number,
             otp_code=otp_code,

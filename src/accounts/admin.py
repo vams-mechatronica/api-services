@@ -12,7 +12,7 @@ class BDAProfileAdmin(admin.ModelAdmin):
 
 @admin.register(OTPRecord)
 class OTPRecordAdmin(admin.ModelAdmin):
-    list_display = ('phone_number','otp_code','is_verified','is_expired')
+    list_display = ('phone_number','otp_code','is_verified','is_expired','created_at','expires_at')
     
 
 @admin.register(BankDetail)
