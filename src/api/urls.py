@@ -15,6 +15,7 @@ urlpatterns = [
     
     # user
     path("user/", UserDetailAPIView.as_view(), name="user-details"),
+    path('user/sync-address/', SyncAddressView.as_view(), name='sync-address'),
     path("user/addresses/", UserAddressListCreateAPIView.as_view(), name="user-addresses"),
 
     # category

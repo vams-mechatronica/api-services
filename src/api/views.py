@@ -231,6 +231,44 @@ class UserAddressListCreateAPIView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+class SyncAddressView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        data = request.data
+
+        # Check if an identical address already exists for this user
+        existing = DeliveryAddress.objects.filter(
+            user=user,
+            name=data.get('name'),
+            address_line=data.get('address_line'),
+            city=data.get('city'),
+            state=data.get('state'),
+            zip_code=data.get('zip_code'),
+            phone_number=data.get('phone_number')
+        ).first()
+
+        if existing:
+            # address already present, nothing to do
+            serializer = DeliveryAddressSerializer(existing)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        # If address exists but some fields changed (same user, same line1 but diff city etc.)
+        # You can choose your match criteria
+        partial_match = DeliveryAddress.objects.filter(user=user, line1=data.get('line1')).first()
+        if partial_match:
+            serializer = DeliveryAddressSerializer(partial_match, data=data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        # Otherwise create new
+        serializer = DeliveryAddressSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 # --- Vendor Profile CRUD ---
 class VendorProfileListCreateView(generics.ListCreateAPIView):
@@ -604,7 +642,7 @@ class AddCartItemView(APIView):
         cart, _ = Cart.objects.get_or_create(user=request.user)
         item = add_or_update_cart_item(cart, product_id, quantity)
 
-        return Response({'message': 'Item updated successfully'}, status=200)
+        return Response({'message': 'Item updated successfully','id':cart.id}, status=200)
 
 class UpdateCartItemView(APIView):
     """Update quantity of a cart item"""
