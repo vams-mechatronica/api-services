@@ -16,6 +16,7 @@ from .serializers import *
 from datetime import date
 user = get_user_model()
 import hmac, hashlib, json
+import pandas as pd
 from django.db import IntegrityError,InterfaceError, InternalError
 from django.db.models import Count, Sum
 from django.shortcuts import get_object_or_404
@@ -1083,14 +1084,32 @@ class WhatsAppDeliveryStatusWebhook(APIView):
     """
 
     def post(self, request, *args, **kwargs):
-        message_sid = request.data.get("MessageSid")
-        message_status = request.data.get("MessageStatus")  # queued, sent, delivered, read, failed
+        data = request.data
+
+        message_sid = data.get("MessageSid")
+        if not message_sid:
+            return Response({"error": "MessageSid missing"}, status=status.HTTP_400_BAD_REQUEST)
 
         msg, created = WhatsAppMessage.objects.get_or_create(SID=message_sid)
-        msg.status = message_status
+
+        msg.account_sid = data.get("AccountSid")
+        msg.messaging_service_sid = data.get("MessagingServiceSid")
+        msg.to = data.get("To")
+        msg.from_number = data.get("From")
+        msg.body = data.get("Body")
+        msg.status = data.get("MessageStatus")  # queued, sent, delivered, failed, read
+        msg.error_code = data.get("ErrorCode")
+        msg.error_message = data.get("ErrorMessage")
+        msg.num_segments = int(data.get("NumSegments", 1))
+        msg.api_version = data.get("ApiVersion")
+        msg.price = data.get("Price")
+        msg.price_unit = data.get("PriceUnit")
+        msg.direction = data.get("Direction")
+
         msg.save()
 
         return Response({"message": "Status updated"}, status=status.HTTP_200_OK)
+
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -1116,3 +1135,55 @@ class InboundWhatsAppMessageWebhook(APIView):
 
         serializer = InboundWhatsAppMessageSerializer(inbound)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class ImportContactsAPIView(APIView):
+    """
+    Upload Excel file and import contacts into MarketingContact
+    """
+
+    def post(self, request, *args, **kwargs):
+        file = request.FILES.get("file")
+        if not file:
+            return Response({"error": "No file uploaded"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            df = pd.read_excel(file)
+
+            imported, skipped = 0, 0
+            for _, row in df.iterrows():
+                phone = str(row.get("phone_number")).strip()
+                name = row.get("name", "")
+
+                if phone:
+
+                    # Ensure phone number has +91 prefix
+                    if not phone.startswith("+91"):
+                        # remove leading 0 if present
+                        if phone.startswith("0"):
+                            phone = phone[1:]
+                        elif phone.startswith("91"):
+                            phone = phone.removeprefix("91")
+                        phone = f"+91{phone}"
+
+                    _, created = MarketingContact.objects.get_or_create(
+                        phone_number=phone,
+                        defaults={"name": name}
+                    )
+                    if created:
+                        imported += 1
+                    else:
+                        skipped += 1
+
+            return Response(
+                {
+                    "message": "Contacts import completed",
+                    "imported": imported,
+                    "skipped_existing": skipped,
+                    "total_in_file": len(df),
+                },
+                status=status.HTTP_201_CREATED,
+            )
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

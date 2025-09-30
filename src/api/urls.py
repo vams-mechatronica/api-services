@@ -111,4 +111,5 @@ urlpatterns = [
 
     path("webhook/whatsapp/status/", WhatsAppDeliveryStatusWebhook.as_view(), name="whatsapp-status-webhook"),
     path("webhook/whatsapp/inbound/", InboundWhatsAppMessageWebhook.as_view(), name="whatsapp-inbound-webhook"),
+    path("marketing/contacts/import/", ImportContactsAPIView.as_view(), name="import-contacts"),
 ]

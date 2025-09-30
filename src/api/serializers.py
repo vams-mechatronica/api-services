@@ -9,7 +9,7 @@ from cart.models import *
 from orders.models import *
 from personalization.models import *
 from delivery.models import DeliveryArea
-from notifications.models import WhatsAppMessage, InboundWhatsAppMessage
+from notifications.models import WhatsAppMessage, InboundWhatsAppMessage, MarketingContact
 from rest_framework import serializers
 User = get_user_model()
 

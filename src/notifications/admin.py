@@ -9,6 +9,16 @@ class MessageTemplateAdmin(admin.ModelAdmin):
 @admin.register(MessageQueue)
 class MessageQueueAdmin(admin.ModelAdmin):
     list_display = ('subject','is_sent','created_at','sent_at')
+
+@admin.register(WhatsAppMessage)
+class WhatsAppMessageAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(InboundWhatsAppMessage)
+class InboundWhatsAppMessageAdmin(admin.ModelAdmin):
+    pass
+    
+
     
 
 @admin.register(MarketingCampaign)

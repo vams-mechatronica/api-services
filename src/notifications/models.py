@@ -59,15 +59,24 @@ class WhatsAppMessage(models.Model):
     Stores outbound messages sent via Twilio WhatsApp
     """
     SID = models.CharField(max_length=100, unique=True, help_text="Twilio Message SID")
-    to = models.CharField(max_length=20)
-    from_number = models.CharField(max_length=20)
-    body = models.TextField()
-    status = models.CharField(max_length=50, default="queued")
-    created_at = models.DateTimeField(default=timezone.now)
+    account_sid = models.CharField(max_length=100, blank=True, null=True)
+    messaging_service_sid = models.CharField(max_length=100, blank=True, null=True)
+    to = models.CharField(max_length=20, blank=True, null=True)
+    from_number = models.CharField(max_length=20, blank=True, null=True)
+    body = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=50, default="queued")  # queued, sent, delivered, failed, read
+    error_code = models.CharField(max_length=50, blank=True, null=True)
+    error_message = models.TextField(blank=True, null=True)
+    num_segments = models.IntegerField(default=1)
+    api_version = models.CharField(max_length=20, blank=True, null=True)
+    price = models.CharField(max_length=20, blank=True, null=True)
+    price_unit = models.CharField(max_length=10, blank=True, null=True)
+    direction = models.CharField(max_length=20, blank=True, null=True)  # inbound/outbound
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.to} - {self.status}"
-
 
 class InboundWhatsAppMessage(models.Model):
     """
