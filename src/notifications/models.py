@@ -121,4 +121,4 @@ class MarketingLog(models.Model):
         unique_together = ("contact", "campaign")
 
     def __str__(self):
-        return f"{self.contact.phone_number} - {self.campaign.name} - Iter {self.iteration_count}"
+        return f"{self.contact.phone_number} - {self.campaign.template_name} - Iter {self.iteration_count}"

@@ -39,7 +39,7 @@ class Command(BaseCommand):
 
             # Call your WhatsApp sending service
             try:
-                WhatsAppGateway().send_marketing_message(to=contact.phone_number, template_id_or_text='HX415fd9cb721951f6da79a82e09d75afc',parameters=None)
+                WhatsAppGateway().send_marketing_message(to=contact.phone_number, template_id_or_text=campaign.template_id,parameters=None)
                 log.last_sent_at = timezone.now()
                 log.save()
                 sent_count += 1
