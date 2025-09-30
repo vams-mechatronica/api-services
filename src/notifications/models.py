@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
 
 class MessageTemplate(models.Model):
     class Channel(models.TextChoices):
@@ -52,3 +53,31 @@ class MessageQueue(models.Model):
     
     def __str__(self):
         return f"{self.recipient}: {self.channel} - sent: {self.is_sent}"
+
+class WhatsAppMessage(models.Model):
+    """
+    Stores outbound messages sent via Twilio WhatsApp
+    """
+    SID = models.CharField(max_length=100, unique=True, help_text="Twilio Message SID")
+    to = models.CharField(max_length=20)
+    from_number = models.CharField(max_length=20)
+    body = models.TextField()
+    status = models.CharField(max_length=50, default="queued")
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.to} - {self.status}"
+
+
+class InboundWhatsAppMessage(models.Model):
+    """
+    Stores inbound (user reply) messages from WhatsApp
+    """
+    SID = models.CharField(max_length=100, unique=True, help_text="Twilio Message SID")
+    from_number = models.CharField(max_length=20)
+    to = models.CharField(max_length=20)
+    body = models.TextField()
+    received_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"From {self.from_number} - {self.body[:30]}"

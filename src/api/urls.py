@@ -108,4 +108,7 @@ urlpatterns = [
 
     path('check-delivery', CheckDeliveryAvailabilityAPI.as_view(), name='check-delivery'),
     path('header-counts/', HeaderCountsAPI.as_view(), name='header-counts'),
+
+    path("webhook/whatsapp/status/", WhatsAppDeliveryStatusWebhook.as_view(), name="whatsapp-status-webhook"),
+    path("webhook/whatsapp/inbound/", InboundWhatsAppMessageWebhook.as_view(), name="whatsapp-inbound-webhook"),
 ]

@@ -9,6 +9,7 @@ from cart.models import *
 from orders.models import *
 from personalization.models import *
 from delivery.models import DeliveryArea
+from notifications.models import WhatsAppMessage, InboundWhatsAppMessage
 from rest_framework import serializers
 User = get_user_model()
 
@@ -428,3 +429,15 @@ class DeliveryAreaSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeliveryArea
         fields = ['id', 'pincode', 'sector', 'is_active']
+
+
+class WhatsAppMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WhatsAppMessage
+        fields = "__all__"
+
+
+class InboundWhatsAppMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InboundWhatsAppMessage
+        fields = "__all__"

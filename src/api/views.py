@@ -1075,3 +1075,44 @@ class HeaderCountsAPI(APIView):
             'cart_count': cart_count,
             'subscription_count': subscription_count
         })
+
+@method_decorator(csrf_exempt, name="dispatch")
+class WhatsAppDeliveryStatusWebhook(APIView):
+    """
+    Webhook for Twilio to send delivery status updates
+    """
+
+    def post(self, request, *args, **kwargs):
+        message_sid = request.data.get("MessageSid")
+        message_status = request.data.get("MessageStatus")  # queued, sent, delivered, read, failed
+
+        msg, created = WhatsAppMessage.objects.get_or_create(SID=message_sid)
+        msg.status = message_status
+        msg.save()
+
+        return Response({"message": "Status updated"}, status=status.HTTP_200_OK)
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class InboundWhatsAppMessageWebhook(APIView):
+    """
+    Webhook for inbound messages from users
+    """
+
+    def post(self, request, *args, **kwargs):
+        message_sid = request.data.get("MessageSid")
+        from_number = request.data.get("From")
+        to_number = request.data.get("To")
+        body = request.data.get("Body")
+
+        inbound, created = InboundWhatsAppMessage.objects.get_or_create(
+            SID=message_sid,
+            defaults={
+                "from_number": from_number,
+                "to": to_number,
+                "body": body,
+            }
+        )
+
+        serializer = InboundWhatsAppMessageSerializer(inbound)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
