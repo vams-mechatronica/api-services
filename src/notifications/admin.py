@@ -11,4 +11,19 @@ class MessageQueueAdmin(admin.ModelAdmin):
     list_display = ('subject','is_sent','created_at','sent_at')
     
 
+@admin.register(MarketingCampaign)
+class MarketingCampaignAdmin(admin.ModelAdmin):
+    list_display = ('template_id','template_name','created_at')
+
+@admin.register(MarketingContact)
+class MarketingContactAdmin(admin.ModelAdmin):
+    list_display = ('phone_number','name','active')
+
+@admin.register(MarketingLog)
+class MarketingLogAdmin(admin.ModelAdmin):
+    pass
     
+
+    
+
+

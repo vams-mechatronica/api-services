@@ -18,8 +18,8 @@ class WhatsAppGateway:
         parameters = [otp_code, "5 minutes"]
         return self.clients.send_template_message(phone_number, template_id, parameters)
 
-    def send_marketing_message(self, phone_number, template_id_or_text, parameters):
-        return self._send_with_failover(phone_number, template_id_or_text, parameters)
+    def send_marketing_message(self, to, template_id_or_text, parameters):
+        return self.clients.send_template_message(to, template_id_or_text, parameters)
 
     def send_order_update(self, phone_number, template_id_or_text, parameters):
         return self._send_with_failover(phone_number, template_id_or_text, parameters)

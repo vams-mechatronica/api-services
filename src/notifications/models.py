@@ -81,3 +81,44 @@ class InboundWhatsAppMessage(models.Model):
 
     def __str__(self):
         return f"From {self.from_number} - {self.body[:30]}"
+
+class MarketingContact(models.Model):
+    """
+    Stores phone numbers for campaign targets
+    """
+    phone_number = models.CharField(max_length=20, unique=True)
+    name = models.CharField(max_length=100, blank=True, null=True)
+    active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.phone_number} ({'Active' if self.active else 'Inactive'})"
+
+
+class MarketingCampaign(models.Model):
+    """
+    Campaign info (title, message, etc.)
+    """
+    template_id = models.CharField(_("template_id"), max_length=255)
+    template_name = models.CharField(_("template_name"), max_length=255)
+    message = models.TextField()
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.template_name
+
+
+class MarketingLog(models.Model):
+    """
+    Log of messages sent to each contact
+    """
+    contact = models.ForeignKey(MarketingContact, on_delete=models.CASCADE)
+    campaign = models.ForeignKey(MarketingCampaign, on_delete=models.CASCADE)
+    sent = models.BooleanField(default=False)
+    iteration_count = models.IntegerField(default=0)
+    last_sent_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ("contact", "campaign")
+
+    def __str__(self):
+        return f"{self.contact.phone_number} - {self.campaign.name} - Iter {self.iteration_count}"
