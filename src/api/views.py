@@ -1094,10 +1094,10 @@ class WhatsAppDeliveryStatusWebhook(APIView):
 
         msg.account_sid = data.get("AccountSid")
         msg.messaging_service_sid = data.get("MessagingServiceSid")
-        msg.to = data.get("To")
-        msg.from_number = data.get("From")
+        msg.to = data["To"].replace('whatsapp','')
+        msg.from_number = data["From"].replace('whatsapp','')
         msg.body = data.get("Body")
-        msg.status = data.get("MessageStatus")  # queued, sent, delivered, failed, read
+        msg.status = data.get("MessageStatus")
         msg.error_code = data.get("ErrorCode")
         msg.error_message = data.get("ErrorMessage")
         msg.num_segments = int(data.get("NumSegments", 1))
