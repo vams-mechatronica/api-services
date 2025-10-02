@@ -131,9 +131,9 @@ class PasswordLogin(APIView):
 
 # GET: List, POST: Create (Admin/BDA only)
 class CategoryListCreateView(generics.ListCreateAPIView):
+    authentication_classes = []
     queryset = Category.objects.annotate(count=Count('product')).order_by('-updated_at')
     serializer_class = CategorySerializer
-    #authentication_classes = (BasicAuthentication,TokenAuthentication,SessionAuthentication,JWTAuthentication)
     pagination_class = CustomPagePagination
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['parent_category','parent_category__slug', 'is_active'] 
