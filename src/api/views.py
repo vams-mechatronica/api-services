@@ -1094,8 +1094,8 @@ class WhatsAppDeliveryStatusWebhook(APIView):
 
         msg.account_sid = data.get("AccountSid")
         msg.messaging_service_sid = data.get("MessagingServiceSid")
-        msg.to = data["To"].replace('whatsapp','')
-        msg.from_number = data["From"].replace('whatsapp','')
+        msg.to = data["To"].replace('whatsapp:','')
+        msg.from_number = data["From"].replace('whatsapp:','')
         msg.body = data.get("Body")
         msg.status = data.get("MessageStatus")
         msg.error_code = data.get("ErrorCode")
