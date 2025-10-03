@@ -181,3 +181,5 @@ cython_debug/
 .cursorindexingignore
 
 **/migrations/
+
+src/api_service/settings.py

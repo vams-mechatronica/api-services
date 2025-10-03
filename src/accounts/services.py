@@ -33,14 +33,14 @@ class OTPService:
             otp_code=otp_code,
             expires_at=expires_at
         )
-        if not send_as_sms:
-            WhatsAppGateway().send_otp(phone_number, otp_code)
-        else:
-            sms_service = TwilioSMSService(settings.TWILIO_ACCOUNT_SID,\
-                                            settings.TWILIO_AUTH_TOKEN,\
-                                            settings.TWILIO_WHATSAPP_NUMBER)
-            otp_service = Twilio_OTPService(sms_service)
-            sid = otp_service.send_otp("+"+phone_number.replace('+',''), otp_code)
+        # if not send_as_sms:
+        #     WhatsAppGateway().send_otp(phone_number, otp_code)
+        # else:
+        #     sms_service = TwilioSMSService(settings.TWILIO_ACCOUNT_SID,\
+        #                                     settings.TWILIO_AUTH_TOKEN,\
+        #                                     settings.TWILIO_WHATSAPP_NUMBER)
+        #     otp_service = Twilio_OTPService(sms_service)
+        #     sid = otp_service.send_otp("+"+phone_number.replace('+',''), otp_code)
         return otp_code
 
     @staticmethod

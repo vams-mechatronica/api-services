@@ -18,32 +18,32 @@ from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
 
-    'formatters': {
-        'verbose': {
-            'format': '{asctime} [{levelname}] {name} ({module}): {message}',
-            'style': '{',
-        },
-        'simple': {
-            'format': '[{levelname}] {message}',
-            'style': '{',
-        },
-    },
+#     'formatters': {
+#         'verbose': {
+#             'format': '{asctime} [{levelname}] {name} ({module}): {message}',
+#             'style': '{',
+#         },
+#         'simple': {
+#             'format': '[{levelname}] {message}',
+#             'style': '{',
+#         },
+#     },
 
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
-        },
-        'file': {
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs/app.log'),
-            'formatter': 'verbose',
-        },
-    },
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#             'formatter': 'verbose',
+#         },
+#         'file': {
+#             'class': 'logging.FileHandler',
+#             'filename': os.path.join(BASE_DIR, 'logs/app.log'),
+#             'formatter': 'verbose',
+#         },
+#     },
 
     'loggers': {
         'app': {
@@ -135,15 +135,25 @@ WSGI_APPLICATION = 'api_service.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.mysql',  
+#             'NAME': 'api-service',         
+#             'USER': 'root',          
+#             'PASSWORD': '',  
+#             'HOST': 'localhost'                   
+#         }
+#     }
 DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',  
-            'NAME': 'api-service',         
-            'USER': 'root',          
-            'PASSWORD': '',  
-            'HOST': 'localhost'                   
-        }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB', 'api'),
+        'USER': os.getenv('POSTGRES_USER', 'postgres'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'Shekhar123#'),
+        'HOST': os.getenv('POSTGRES_HOST', 'localhost'),
+        'PORT': os.getenv('POSTGRES_PORT', '5432'),
     }
+}
 
 
 

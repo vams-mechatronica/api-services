@@ -9,10 +9,12 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("--campaign_id", type=int, required=True, help="ID of campaign to run")
         parser.add_argument("--limit", type=int, default=50, help="Limit number of messages per run")
+        parser.add_argument("--offset", type=int, default=0, help="Offset for messages to process")
 
     def handle(self, *args, **options):
         campaign_id = options["campaign_id"]
         limit = options["limit"]
+        offset = options["offset"]
 
         try:
             campaign = MarketingCampaign.objects.get(id=campaign_id)
@@ -23,7 +25,7 @@ class Command(BaseCommand):
         contacts = MarketingContact.objects.filter(active=True)
 
         sent_count = 0
-        for contact in contacts[:limit]:
+        for contact in contacts[offset:offset + limit]:
             log, created = MarketingLog.objects.get_or_create(
                 contact=contact,
                 campaign=campaign,
