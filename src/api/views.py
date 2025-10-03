@@ -272,6 +272,36 @@ class SyncAddressView(APIView):
 
 
 # --- Vendor Profile CRUD ---
+class VendorStoreView(generics.ListAPIView):
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
+    search_fields = ('shop_name',)
+    filterset_fields = ('sub_category','category')
+    permission_classes = (AllowAny,)
+    authentication_classes = ()
+    queryset = VendorProfile.objects.all().order_by('-updated_at') 
+    serializer_class = VendorProfileSerializer
+
+class VendorStoreDetailView(generics.RetrieveAPIView):
+    permission_classes = (AllowAny,)
+    authentication_classes = ()
+    queryset = VendorProfile.objects.all()
+    serializer_class = VendorDetailSerializer
+    lookup_field = 'slug'
+
+class VendorStoreProductsListView(generics.ListAPIView):
+    authentication_classes = ()
+    permission_classes = (AllowAny,)
+    serializer_class = ProductSerializer
+
+    def get_queryset(self):
+        slug = self.kwargs.get("slug")
+        return Product.objects.filter(vendor__slug=slug)
+
+
 class VendorProfileListCreateView(generics.ListCreateAPIView):
     filter_backends = [
         DjangoFilterBackend,

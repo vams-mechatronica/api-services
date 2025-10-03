@@ -39,8 +39,10 @@ urlpatterns = [
 
     path('customers/', CustomerProfileListCreateView.as_view(), name='customer-list-create'),
     path('customers/<int:pk>/', CustomerProfileDetailView.as_view(), name='customer-detail'),
-
     path('vendors/', VendorProfileListCreateView.as_view(), name='vendor-list-create'),
+    path('vendors/stores/', VendorStoreView.as_view(), name='vendor-store-list'),
+    path('vendors/stores/<slug:slug>/', VendorStoreDetailView.as_view(), name='vendor-store-detail'),
+    path('vendors/stores/<slug:slug>/products/', VendorStoreProductsListView.as_view(), name='vendor-store-products'),
     path('vendors/<int:pk>/', VendorProfileDetailView.as_view(), name='vendor-detail'),
     path('vendors/products/',VendorProductsListView.as_view(),name="vendor-product-list"),
     path('vendors/product/<int:pk>',VendorProductsUpdateView.as_view(),name="vendor-product-update"),

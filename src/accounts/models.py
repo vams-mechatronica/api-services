@@ -3,10 +3,12 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from utils.g_uuid import GenerateUUID
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from datetime import timedelta
 from category.models import Category
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.utils.text import slugify
 
 class User(AbstractUser):
     USER_ROLES = (
@@ -61,7 +63,9 @@ class VendorProfile(BaseProfile):
         # Add more as needed
     )
     shop_name = models.CharField(max_length=255)
+    slug = models.SlugField(unique=True, max_length=120, verbose_name=_("Slug"),null=True,blank=True)
     shop_address = models.TextField()
+    shop_image = models.ImageField(_("Shop Image"), upload_to='shop_images/', height_field=None, width_field=None, max_length=None, blank=True, null=True)
     category = models.CharField(max_length=20, choices=PRODUCT_TYPES, default='food')
     sub_category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
     bda = models.ForeignKey('BDAProfile', null=True, blank=True, on_delete=models.SET_NULL)
@@ -76,6 +80,11 @@ class VendorProfile(BaseProfile):
     
     def __str__(self):
         return self.shop_name
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.shop_name)
+        super().save(*args, **kwargs)
 
 class BDAProfile(BaseProfile):
     region = models.CharField(max_length=255)
