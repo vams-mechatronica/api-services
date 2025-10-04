@@ -91,16 +91,78 @@ class InboundWhatsAppMessage(models.Model):
     def __str__(self):
         return f"From {self.from_number} - {self.body[:30]}"
 
-class MarketingContact(models.Model):
+class Client(models.Model):
     """
-    Stores phone numbers for campaign targets
+    Represents a client/company using the marketing system.
     """
-    phone_number = models.CharField(max_length=20, unique=True)
-    name = models.CharField(max_length=100, blank=True, null=True)
-    active = models.BooleanField(default=True)
+    name = models.CharField(max_length=255)
+    email = models.EmailField(blank=True, null=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    region = models.CharField(max_length=100, blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.phone_number} ({'Active' if self.active else 'Inactive'})"
+        return self.name
+
+
+class MarketingContact(models.Model):
+    """
+    Stores phone numbers and demographic details for campaign targeting.
+    """
+
+    GENDER_CHOICES = [
+        ('male', 'Male'),
+        ('female', 'Female'),
+        ('other', 'Other'),
+    ]
+
+    AGE_GROUP_CHOICES = [
+        ('18-25', '18-25'),
+        ('26-35', '26-35'),
+        ('36-45', '36-45'),
+        ('46-60', '46-60'),
+        ('60+', '60+'),
+    ]
+
+    client = models.ForeignKey(
+        Client,
+        on_delete=models.CASCADE,
+        related_name='contacts',
+        help_text="Client who owns this contact",
+        blank=True,
+        null=True
+    )
+
+    phone_number = models.CharField(max_length=20)
+    name = models.CharField(max_length=100, blank=True, null=True)
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True, null=True)
+    age_group = models.CharField(max_length=10, choices=AGE_GROUP_CHOICES, blank=True, null=True)
+    region = models.CharField(max_length=100, blank=True, null=True)
+    tags = models.ManyToManyField('ContactTag', blank=True, related_name='contacts')
+    active = models.BooleanField(default=True)
+    date_added = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('client', 'phone_number')
+        indexes = [
+            models.Index(fields=['phone_number']),
+            models.Index(fields=['client', 'region']),
+        ]
+
+    def __str__(self):
+        return f"{self.phone_number} ({self.client.name}/{'Active' if self.active else 'Inactive'})"
+
+
+class ContactTag(models.Model):
+    """
+    Flexible tagging system for contacts — for campaigns, interests, etc.
+    """
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
+
 
 
 class MarketingCampaign(models.Model):
