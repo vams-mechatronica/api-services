@@ -145,13 +145,9 @@ class MarketingContact(models.Model):
 
     class Meta:
         unique_together = ('client', 'phone_number')
-        indexes = [
-            models.Index(fields=['phone_number']),
-            models.Index(fields=['client', 'region']),
-        ]
 
     def __str__(self):
-        return f"{self.phone_number} ({self.client.name}/{'Active' if self.active else 'Inactive'})"
+        return f"{self.phone_number} ({'Active' if self.active else 'Inactive'})"
 
 
 class ContactTag(models.Model):
