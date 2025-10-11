@@ -44,6 +44,7 @@ urlpatterns = [
     path('vendors/stores/<slug:slug>/', VendorStoreDetailView.as_view(), name='vendor-store-detail'),
     path('vendors/stores/<slug:slug>/products/', VendorStoreProductsListView.as_view(), name='vendor-store-products'),
     path('vendors/<int:pk>/', VendorProfileDetailView.as_view(), name='vendor-detail'),
+    path('vendors/<int:pk>/image-update/', VendorProfileImageUploadView.as_view(), name='vendor-detail'),
     path('vendors/products/',VendorProductsListView.as_view(),name="vendor-product-list"),
     path('vendors/product/<int:pk>',VendorProductsUpdateView.as_view(),name="vendor-product-update"),
 

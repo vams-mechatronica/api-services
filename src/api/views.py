@@ -11,6 +11,8 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.authentication import TokenAuthentication, BasicAuthentication, SessionAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from .utils import CustomPagePagination
+from rest_framework.parsers import MultiPartParser, FormParser
+
 from .permissions import *
 from .serializers import *
 from datetime import date
@@ -321,6 +323,16 @@ class VendorProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = VendorProfile.objects.all()
     serializer_class = VendorDetailSerializer
 
+class VendorProfileImageUploadView(APIView):
+    parser_classes = [MultiPartParser, FormParser]
+    permission_classes = [AllowAny]
+
+    def put(self, request, pk):
+        vendor = get_object_or_404(VendorProfile, pk=pk)
+        vendor.shop_image = request.data.get('shop_image')
+        vendor.save()
+        return Response(VendorProfileSerializer(vendor).data, status=status.HTTP_200_OK)
+
 
 # --- BDA Profile CRUD ---
 class BDAProfileListCreateView(generics.ListCreateAPIView):
@@ -392,7 +404,7 @@ class VendorProductsListView(generics.ListCreateAPIView):
         vendor_id = self.request.GET.get('vendor_id')
         if not vendor_id:
             return Product.objects.none()
-        return Product.objects.filter(vendor_id=vendor_id)
+        return Product.objects.filter(vendor__id=vendor_id)
 
     def list(self, request, *args, **kwargs):
         vendor_id = self.request.GET.get('vendor_id')

@@ -400,6 +400,7 @@ class VendorDetailSerializer(serializers.ModelSerializer):
             'id',
             'user',
             'shop_name',
+            'shop_image',
             'shop_address',
             'category',
             'sub_category',
