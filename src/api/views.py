@@ -295,7 +295,7 @@ class VendorStoreDetailView(generics.RetrieveAPIView):
 class VendorStoreProductsListView(generics.ListAPIView):
     authentication_classes = ()
     permission_classes = (AllowAny,)
-    serializer_class = ProductSerializer
+    serializer_class = ProductSimpleSerializer
 
     def get_queryset(self):
         slug = self.kwargs.get("slug")
