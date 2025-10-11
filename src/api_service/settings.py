@@ -89,7 +89,7 @@ INSTALLED_APPS = [
     'payments',
     'products',
     'scheduler',
-    'wallet',
+    'wallet.apps.WalletConfig',
     'corsheaders',
     'notifications',
     'personalization',
