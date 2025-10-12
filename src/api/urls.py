@@ -40,6 +40,7 @@ urlpatterns = [
     path('customers/', CustomerProfileListCreateView.as_view(), name='customer-list-create'),
     path('customers/<int:pk>/', CustomerProfileDetailView.as_view(), name='customer-detail'),
     path('vendors/', VendorProfileListCreateView.as_view(), name='vendor-list-create'),
+    path('vendors/dashboard/', VendorDashboardAPI.as_view(), name='vendor-dashboard'),
     path('vendors/stores/', VendorStoreView.as_view(), name='vendor-store-list'),
     path('vendors/stores/<slug:slug>/', VendorStoreDetailView.as_view(), name='vendor-store-detail'),
     path('vendors/stores/<slug:slug>/products/', VendorStoreProductsListView.as_view(), name='vendor-store-products'),
@@ -50,7 +51,8 @@ urlpatterns = [
 
     path('vendors/shop-address/', ShopAddressCreateView.as_view(), name='create-shop-address'),
     path('vendors/shop-address/<int:pk>/', ShopAddressDetailView.as_view(), name='shop-address-detail'),
-
+    path('vendors/orders/',VendorOrderAPI.as_view()),
+    path('vendors/orders/items/',VendorOrderItemsAPI.as_view()),
     path('vendors/shop-documents/', ShopDocumentCreateView.as_view(), name='create-shop-document'),
     path('vendors/shop-documents/<int:pk>/', ShopDocumentDetailView.as_view(), name='shop-document-detail'),
     path('vendors/shop-documents/files/', ShopDocumentFileListCreateView.as_view(), name='shop-documents-files-list-create'),

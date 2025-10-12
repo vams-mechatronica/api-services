@@ -8,7 +8,7 @@ from django.contrib.auth import get_user_model
 user = get_user_model()
 
 class Wallet(models.Model):
-    user = models.OneToOneField(user, on_delete=models.CASCADE)
+    user = models.OneToOneField(user, on_delete=models.CASCADE, related_name='wallet')
     balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     last_deducted_on = models.DateField(null=True, blank=True)
 

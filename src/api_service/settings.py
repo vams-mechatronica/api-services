@@ -96,6 +96,8 @@ INSTALLED_APPS = [
     'django_celery_results',
     'django_celery_beat',
     'tracking',
+    'vendors.vendors_orders',
+    'analytics.apps.AnalyticsConfig',
 ]
 
 MIDDLEWARE = [

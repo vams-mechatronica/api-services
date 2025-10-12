@@ -8,6 +8,7 @@ from scheduler.models import *
 from cart.models import *
 from orders.models import *
 from personalization.models import *
+from vendors.vendors_orders.models import *
 from delivery.models import DeliveryArea
 from notifications.models import WhatsAppMessage, InboundWhatsAppMessage, MarketingContact
 from rest_framework import serializers
@@ -442,3 +443,55 @@ class InboundWhatsAppMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = InboundWhatsAppMessage
         fields = "__all__"
+
+
+class VendorDashboardSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    sub_category = CategorySerializer()
+    wallet_balance = serializers.SerializerMethodField()
+    total_orders = serializers.SerializerMethodField()
+    pending_orders = serializers.SerializerMethodField()
+    completed_orders = serializers.SerializerMethodField()
+
+    class Meta:
+        model = VendorProfile
+        fields = [
+            'id',
+            'user',
+            'shop_name',
+            'shop_image',
+            'shop_address',
+            'category',
+            'sub_category',
+            'trial_ends_at',
+            'is_in_trial',
+            'total_orders',
+            'pending_orders',
+            'completed_orders',
+            'wallet_balance'
+
+        ]
+
+    def get_total_orders(self, obj):
+        return VendorOrder.objects.filter(vendor=obj).count()
+
+    def get_pending_orders(self, obj):
+        return VendorOrder.objects.filter(vendor=obj, status='pending').count()
+    
+    def get_completed_orders(self, obj):
+        return self.get_total_orders(obj=obj) - self.get_pending_orders(obj=obj)
+    
+    def get_wallet_balance(self, obj):
+        return obj.user.wallet.balance
+
+class VendorOrderSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = VendorOrder
+        fields = '__all__'
+
+class VendorOrderItemSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = VendorOrderItem
+        fields = '__all__'

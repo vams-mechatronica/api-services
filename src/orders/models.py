@@ -36,9 +36,6 @@ class VendorCoupon(models.Model):
         now = timezone.now()
         return self.active and self.valid_from <= now <= self.valid_to
 
-
-
-
 class Order(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),

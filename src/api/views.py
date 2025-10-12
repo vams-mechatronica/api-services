@@ -12,7 +12,7 @@ from rest_framework.authentication import TokenAuthentication, BasicAuthenticati
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from .utils import CustomPagePagination
 from rest_framework.parsers import MultiPartParser, FormParser
-
+from payments.signals import payment_completed
 from .permissions import *
 from .serializers import *
 from datetime import date
@@ -94,7 +94,7 @@ class VerifyLoginOTP(APIView):
         auth_service = AuthenticationService()
         if auth_service.verify_login_otp(phone_number, otp):
             user_service = UserService(use_jwt=True)  # or False for Django Token
-            cuser, created = user_service.get_or_create_user(phone_number.replace('+',''))
+            cuser, created = user_service.get_or_create_user(phone_number.replace('+',''), role=role)
             token = user_service.generate_token(cuser)
 
             if created:
@@ -316,6 +316,12 @@ class VendorProfileListCreateView(generics.ListCreateAPIView):
     #authentication_classes = (JWTAuthentication,SessionAuthentication)
     queryset = VendorProfile.objects.all()
     serializer_class = VendorProfileSerializer
+
+class VendorDashboardAPI(generics.RetrieveAPIView):
+    serializer_class = VendorDashboardSerializer
+
+    def get_object(self):
+        return get_object_or_404(VendorProfile, user=self.request.user)
 
 
 class VendorProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -860,10 +866,18 @@ class VerifyPaymentView(APIView):
             cart = Cart.objects.get(user=request.user)
             cart.items.all().delete()
 
-            enqueue_message(recipient='info@vamsmechatronica.in',
-                subject="Order Created",
-                body=f"order #{order.id} has been created successfully.",
-                channel='email')
+            # ✅ Emit signal after successful payment
+            payment_completed.send(
+                sender=self.__class__,
+                payment=payment,
+                order=order,
+                user=request.user
+            )
+
+            # enqueue_message(recipient='info@vamsmechatronica.in',
+            #     subject="Order Created",
+            #     body=f"order #{order.id} has been created successfully.",
+            #     channel='email')
 
 
             return Response({'message': 'Payment verified successfully'}, status=200)
@@ -1229,3 +1243,17 @@ class ImportContactsAPIView(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class VendorOrderAPI(generics.ListAPIView):
+    queryset = VendorOrder.objects.all()
+    serializer_class = VendorOrderSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['vendor','status']
+
+class VendorOrderItemsAPI(generics.ListAPIView):
+    queryset = VendorOrderItem.objects.all()
+    serializer_class = VendorOrderItemSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['order__id','product']
+
+    

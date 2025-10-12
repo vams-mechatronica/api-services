@@ -118,6 +118,25 @@ class DeliveryAddress(models.Model):
         verbose_name = "DeliveryAddress"
         verbose_name_plural = "DeliveryAddress"
 
+    def __str__(self):
+        return self.get_full_address()
+
+    def get_full_address(self):
+        """
+        Returns a nicely formatted full address as a single string.
+        Example:
+        "John Doe, 221B Baker Street, London, UK - 12345"
+        """
+        parts = [
+            self.name or "",
+            self.address_line or "",
+            self.city or "",
+            self.state or "",
+            f"- {self.zip_code}" if self.zip_code else "",
+        ]
+        # Filter out empty parts and join with commas
+        return ", ".join(filter(None, parts))
+
 class ShopAddress(models.Model):
     vendor = models.OneToOneField(VendorProfile, on_delete=models.CASCADE, related_name='shop_location')
     address_line1 = models.CharField(max_length=255)

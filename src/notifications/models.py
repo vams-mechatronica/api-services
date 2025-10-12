@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
@@ -189,3 +190,19 @@ class MarketingLog(models.Model):
 
     def __str__(self):
         return f"{self.contact.phone_number} - {self.campaign.template_name} - Iter {self.iteration_count}"
+
+class OutboxEvent(models.Model):
+    EVENT_STATUS = [
+        ('PENDING', 'Pending'),
+        ('PROCESSED', 'Processed'),
+        ('FAILED', 'Failed'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    event_type = models.CharField(max_length=100)
+    payload = models.JSONField()
+    status = models.CharField(max_length=20, choices=EVENT_STATUS, default='PENDING')
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.event_type} ({self.status})"
