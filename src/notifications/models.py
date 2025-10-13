@@ -28,6 +28,7 @@ class MessageTemplate(models.Model):
     body = models.TextField(
         help_text="Body text. You can use {{ placeholders }} for dynamic values."
     )
+    image = models.ImageField(_("Image"), upload_to='whatsapp_template_media', null=True, blank=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
