@@ -31,6 +31,7 @@ from scheduler.services.subscription_service import check_wallet_balance_and_upd
 from notifications.services import enqueue_message
 
 class RequestSignupOTP(APIView):
+    permission_classes = (AllowAny,)
     def post(self, request):
         phone_number = request.data.get('phone_number')
         if not phone_number:
@@ -43,6 +44,7 @@ class RequestSignupOTP(APIView):
 
 
 class VerifySignupOTP(APIView):
+    permission_classes = (AllowAny,)
     def post(self, request):
         phone_number = request.data.get('phone_number')
         otp = request.data.get('otp')
@@ -88,6 +90,7 @@ class VerifyLoginOTP(APIView):
         otp = request.data.get('otp')
         role = request.data.get('role')
         bdaUserId = None
+        vendorProfileId = None
         if not phone_number or not otp:
             return Response({'error': 'Phone number and OTP required.'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -109,7 +112,11 @@ class VerifyLoginOTP(APIView):
                 bdaObj = get_object_or_404(BDAProfile,user=cuser)
                 if bdaObj:
                     bdaUserId = bdaObj.pk
-            return Response({'message': 'Login successful.', 'user_id': cuser.id,'bdaUserId':bdaUserId, 'token':token}, status=status.HTTP_200_OK)
+            if role and role == 'vendor':
+                vendorObj = get_object_or_404(VendorProfile,user=cuser)
+                if vendorObj:
+                    vendorProfileId = vendorObj.pk
+            return Response({'message': 'Login successful.', 'user_id': cuser.id,'bdaUserId':bdaUserId,'vendorUserId':vendorProfileId, 'token':token}, status=status.HTTP_200_OK)
         else:
             return Response({'message': 'Invalid OTP.'}, status=status.HTTP_400_BAD_REQUEST)
 
