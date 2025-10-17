@@ -1,6 +1,6 @@
 # notifications/notifiers/email_notifier.py
 from .base import BaseNotifier
-from utils.email_client import EmailClient
+from notifications.utils.email.email_client import EmailClient
 
 class EmailNotifier(BaseNotifier):
     def send(self, user, message):

@@ -18,6 +18,16 @@ class WhatsAppMessageAdmin(admin.ModelAdmin):
 class InboundWhatsAppMessageAdmin(admin.ModelAdmin):
     pass
     
+@admin.register(EmailSentLog)
+class EmailSentLogAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(EmailMarketingLog)
+class EmailMarketingLogAdmin(admin.ModelAdmin):
+    pass
+
+
+    
 
     
 

@@ -231,7 +231,7 @@ EMAIL_HOST_USER = "info@vamsmechatronica.in"
 EMAIL_HOST_PASSWORD = "OneManArmy3$"
 
 # Default email address from which emails will be sent
-DEFAULT_FROM_EMAIL = 'Books Store <info@vamsbookstore.in>'
+DEFAULT_FROM_EMAIL = 'TheNearByShop <info@vamsmechatronica.in>'
 
 
 REST_FRAMEWORK = {

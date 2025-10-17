@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 
@@ -137,6 +138,7 @@ class MarketingContact(models.Model):
     )
 
     phone_number = models.CharField(max_length=20)
+    email = models.EmailField(_("Email"), max_length=254, null=True, blank=True)
     name = models.CharField(max_length=100, blank=True, null=True)
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True, null=True)
     age_group = models.CharField(max_length=10, choices=AGE_GROUP_CHOICES, blank=True, null=True)
@@ -191,6 +193,34 @@ class MarketingLog(models.Model):
 
     def __str__(self):
         return f"{self.contact.phone_number} - {self.campaign.template_name} - Iter {self.iteration_count}"
+    
+
+class EmailMarketingLog(models.Model):
+    """
+    Log of messages sent to each contact
+    """
+    contact = models.ForeignKey(MarketingContact, on_delete=models.CASCADE)
+    template = models.ForeignKey(MessageTemplate, on_delete=models.CASCADE)
+    sent = models.BooleanField(default=False)
+    iteration_count = models.IntegerField(default=0)
+    last_sent_at = models.DateTimeField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.contact.phone_number} - {self.template.name} - Iter {self.iteration_count}"
+
+class EmailSentLog(models.Model):
+    start_index = models.IntegerField(_("Start_index"),default=0)
+    end_index = models.IntegerField(_("end index"),default=0)
+    created_at =models.DateTimeField(_("Created at"), auto_now=False, auto_now_add=True)
+    updated_at = models.DateTimeField(_("Updated at"), auto_now=True, auto_now_add=False)
+    
+    class Meta:
+        verbose_name = _("EmailSentLog")
+        verbose_name_plural = _("EmailSentLogs")
+
+    def get_absolute_url(self):
+        return reverse("EmailSentLog_detail", kwargs={"pk": self.pk})
+
 
 class OutboxEvent(models.Model):
     EVENT_STATUS = [
