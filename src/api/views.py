@@ -32,6 +32,7 @@ from notifications.services import enqueue_message
 
 class RequestSignupOTP(APIView):
     permission_classes = (AllowAny,)
+    authentication_classes = ()
     def post(self, request):
         phone_number = request.data.get('phone_number')
         if not phone_number:
@@ -45,6 +46,7 @@ class RequestSignupOTP(APIView):
 
 class VerifySignupOTP(APIView):
     permission_classes = (AllowAny,)
+    authentication_classes = ()
     def post(self, request):
         phone_number = request.data.get('phone_number')
         otp = request.data.get('otp')
@@ -72,6 +74,7 @@ class VerifySignupOTP(APIView):
 
 class RequestLoginOTP(APIView):
     permission_classes = (AllowAny,)
+    authentication_classes = ()
     def post(self, request):
         phone_number = request.data.get('phone_number')
         if not phone_number:
@@ -85,6 +88,7 @@ class RequestLoginOTP(APIView):
 
 class VerifyLoginOTP(APIView):
     permission_classes = (AllowAny,)
+    authentication_classes = ()
     def post(self, request):
         phone_number = request.data.get('phone_number')
         otp = request.data.get('otp')
@@ -162,6 +166,7 @@ class CategoryListCreateView(generics.ListCreateAPIView):
 # GET: Retrieve, PUT/PATCH: Update, DELETE (Admin/BDA only)
 class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Category.objects.all()
+    authentication_classes = ()
     serializer_class = CategorySerializer
     permission_classes = (IsAdminBDAorVendor,)
     #authentication_classes = (BasicAuthentication,TokenAuthentication,SessionAuthentication,JWTAuthentication)
@@ -546,6 +551,7 @@ class VendorDailyAccessAPI(APIView):
 class ProductListView(generics.ListAPIView):
     #authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
     permission_classes = (AllowAny,)
+    authentication_classes = ()
     serializer_class = ProductSimpleSerializer
     queryset = Product.objects.all().select_related('category', 'vendor').prefetch_related('images')
 
@@ -561,11 +567,13 @@ class ProductListView(generics.ListAPIView):
 
 class ProductRetrieveAPI(generics.RetrieveAPIView):
     permission_classes = (AllowAny,)
+    authentication_classes = ()
     serializer_class = ProductSimpleSerializer
     queryset = Product.objects.all().select_related('category', 'vendor').prefetch_related('images')
 
 class ProductRetrieveBySlugAPI(generics.RetrieveAPIView):
     permission_classes = (AllowAny,)
+    authentication_classes = ()
     serializer_class = ProductSimpleSerializer
     queryset = Product.objects.select_related('category', 'vendor').prefetch_related('images')
     lookup_field = 'slug'  # this is the key change
@@ -846,6 +854,7 @@ class InitiatePaymentView(APIView):
 
 class VerifyPaymentView(APIView):
     permission_classes = [AllowAny]
+    authentication_classes = ()
     #authentication_classes = (BasicAuthentication, TokenAuthentication, SessionAuthentication,JWTAuthentication)
 
     def post(self, request, *args, **kwargs):
@@ -904,6 +913,7 @@ class VerifyPaymentView(APIView):
 @method_decorator(csrf_exempt, name='dispatch')
 class RazorpayWebhookView(APIView):
     permission_classes = [AllowAny]
+    authentication_classes = ()
 
     def post(self, request, *args, **kwargs):
         payload = request.body
@@ -941,6 +951,7 @@ class TermsListView(generics.ListAPIView):
     queryset = TermsAndConditions.objects.filter(is_active=True)
     serializer_class = TermsAndConditionsSerializer
     permission_classes = [AllowAny]
+    authentication_classes = ()
 
 class TermsCreateView(generics.CreateAPIView):
     queryset = TermsAndConditions.objects.all()
@@ -953,6 +964,7 @@ class FAQListView(generics.ListAPIView):
     queryset = FAQ.objects.filter(is_active=True)
     serializer_class = FAQSerializer
     permission_classes = [AllowAny]
+    authentication_classes = ()
     
 
 class FAQCreateView(generics.CreateAPIView):
@@ -965,6 +977,7 @@ class FAQCreateView(generics.CreateAPIView):
 class BannerListView(generics.ListAPIView):
     serializer_class = BannerSerializer
     permission_classes = [AllowAny]
+    authentication_classes = ()
 
     def get_queryset(self):
         position = self.request.query_params.get('position')
@@ -1095,6 +1108,7 @@ class UnitListView(generics.ListAPIView):
     queryset = Unit.objects.all()
     serializer_class = UnitSerializer
     permission_classes = [AllowAny]
+    authentication_classes = ()
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['product_type'] 
 
