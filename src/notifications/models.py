@@ -27,7 +27,7 @@ class MessageTemplate(models.Model):
         help_text="Subject for email or title for push. Leave blank for SMS/WhatsApp."
     )
     body = models.TextField(
-        help_text="Body text. You can use {{ placeholders }} for dynamic values."
+        help_text="Body text. You can use {{ placeholders }} for dynamic values.", max_length=10000
     )
     image = models.ImageField(_("Image"), upload_to='whatsapp_template_media', null=True, blank=True)
     is_active = models.BooleanField(default=True)
