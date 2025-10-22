@@ -29,6 +29,7 @@ class Command(BaseCommand):
                 offset = 0
 
         contacts = MarketingContact.objects.filter(active=True).exclude(email__isnull=True)[offset:limit+offset]
+        self.stdout.write(self.style.HTTP_INFO("total contacts found: %s", len(contacts)))
         sent_count = 0
         for contact in contacts[offset:offset + limit]:
             log, created = EmailMarketingLog.objects.get_or_create(
