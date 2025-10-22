@@ -23,7 +23,7 @@ class Command(BaseCommand):
             return
         
         # ✅ Check for HTML file field
-        html_file_path = campaign.htmlfile
+        html_file_path = campaign.htmlfile.path
         if not html_file_path:
             self.stdout.write(self.style.ERROR("No HTML file path found in MessageTemplate.htmlfile"))
             return
