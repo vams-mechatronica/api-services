@@ -37,7 +37,8 @@ class MarketingCampaignAdmin(admin.ModelAdmin):
 
 @admin.register(MarketingContact)
 class MarketingContactAdmin(admin.ModelAdmin):
-    list_display = ('phone_number','name','active')
+    list_display = ('phone_number','name','email','active')
+    search_fields = ('phone_number','name','email')
 
 @admin.register(MarketingLog)
 class MarketingLogAdmin(admin.ModelAdmin):
