@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 from notifications.models import MarketingContact, EmailMarketingLog, MessageTemplate, EmailSentLog
 from notifications.utils.email.email_client import EmailClientClass
-
+import os
 class Command(BaseCommand):
     help = "Run a Email marketing campaign"
 
@@ -21,6 +21,20 @@ class Command(BaseCommand):
         except MessageTemplate.DoesNotExist:
             self.stdout.write(self.style.ERROR(f"Template ID {template_id} not found"))
             return
+        
+        # ✅ Check for HTML file field
+        html_file_path = campaign.htmlfile
+        if not html_file_path:
+            self.stdout.write(self.style.ERROR("No HTML file path found in MessageTemplate.htmlfile"))
+            return
+
+        if not os.path.exists(html_file_path):
+            self.stdout.write(self.style.ERROR(f"HTML file not found: {html_file_path}"))
+            return
+
+        # ✅ Load HTML body content
+        with open(html_file_path, "r", encoding="utf-8") as f:
+            html_body = f.read()
         
         if not offset:
             try:
@@ -47,7 +61,7 @@ class Command(BaseCommand):
 
             # Call your WhatsApp sending service
             try:
-                EmailClientClass().send_template_message(to_email=contact.email, subject=campaign.subject,template=campaign.body,context={'name':contact.name})
+                EmailClientClass().send_template_message(to_email=contact.email, subject=campaign.subject,template=html_body,context={'name':contact.name})
                 log.last_sent_at = timezone.now()
                 log.save()
                 sent_count += 1
