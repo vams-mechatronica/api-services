@@ -1278,7 +1278,7 @@ class VendorOrderItemsAPI(generics.ListAPIView):
     filterset_fields = ['order__id','product']
 
     
-class WhatsAppMessageStatusView(generics.CreateAPIView):
+class WhatsAppMessageStatusView(generics.ListCreateAPIView):
     permission_classes = (AllowAny,)
     authentication_classes = ()
     queryset = WhatsAppMessageStatus.objects.all()
@@ -1320,7 +1320,7 @@ class WhatsAppMessageStatusView(generics.CreateAPIView):
         from rest_framework.response import Response
         return Response({"status": "success", "saved": data})
 
-class WhatsAppSeenReportView(generics.CreateAPIView):
+class WhatsAppSeenReportView(generics.ListCreateAPIView):
     queryset = WhatsAppSeenReport.objects.all()
     serializer_class = WhatsAppSeenReportSerializer
 
