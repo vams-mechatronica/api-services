@@ -1321,6 +1321,8 @@ class WhatsAppMessageStatusView(generics.ListCreateAPIView):
         return Response({"status": "success", "saved": data})
 
 class WhatsAppSeenReportView(generics.ListCreateAPIView):
+    permission_classes = (AllowAny,)
+    authentication_classes = ()
     queryset = WhatsAppSeenReport.objects.all()
     serializer_class = WhatsAppSeenReportSerializer
 
