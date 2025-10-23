@@ -115,6 +115,8 @@ urlpatterns = [
     path('header-counts/', HeaderCountsAPI.as_view(), name='header-counts'),
 
     path("webhook/whatsapp/status/", WhatsAppDeliveryStatusWebhook.as_view(), name="whatsapp-status-webhook"),
+    path('infobip/whatsapp/status/', WhatsAppMessageStatusView.as_view(), name='infobip-whatsapp-status'),
+    path('infobip/whatsapp/seen-reports/', WhatsAppSeenReportView.as_view(), name='infobip-whatsapp-seen'),
     path("webhook/whatsapp/inbound/", InboundWhatsAppMessageWebhook.as_view(), name="whatsapp-inbound-webhook"),
     path("marketing/contacts/import/", ImportContactsAPIView.as_view(), name="import-contacts"),
 ]

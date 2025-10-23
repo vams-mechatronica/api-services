@@ -82,6 +82,48 @@ class WhatsAppMessage(models.Model):
     def __str__(self):
         return f"{self.to} - {self.status}"
 
+class WhatsAppMessageStatus(models.Model):
+    message_id = models.CharField(max_length=100, unique=True)
+    bulk_id = models.CharField(max_length=100, blank=True, null=True)
+    to = models.CharField(max_length=20)
+    
+    price_per_message = models.FloatField(blank=True, null=True)
+    currency = models.CharField(max_length=10, blank=True, null=True)
+
+    status_id = models.IntegerField()
+    status_group_id = models.IntegerField()
+    status_group_name = models.CharField(max_length=50)
+    status_name = models.CharField(max_length=50)
+    status_description = models.TextField()
+
+    error_id = models.IntegerField()
+    error_name = models.CharField(max_length=50)
+    error_description = models.TextField(blank=True, null=True)
+    error_group_id = models.IntegerField()
+    error_group_name = models.CharField(max_length=50)
+    error_permanent = models.BooleanField(default=False)
+
+    message_count = models.IntegerField(default=1)
+    sent_at = models.DateTimeField(blank=True, null=True)
+    done_at = models.DateTimeField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Message to {self.to} - {self.status_name}"
+
+class WhatsAppSeenReport(models.Model):
+    message_id = models.CharField(max_length=100, unique=True)
+    from_number = models.CharField(max_length=20)
+    to = models.CharField(max_length=20)
+    sent_at = models.DateTimeField(blank=True, null=True)
+    seen_at = models.DateTimeField(blank=True, null=True)
+    application_id = models.CharField(max_length=100, blank=True, null=True)
+    entity_id = models.CharField(max_length=100, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Seen report for {self.to} ({self.message_id})"
+
 class InboundWhatsAppMessage(models.Model):
     """
     Stores inbound (user reply) messages from WhatsApp

@@ -10,7 +10,7 @@ from orders.models import *
 from personalization.models import *
 from vendors.vendors_orders.models import *
 from delivery.models import DeliveryArea
-from notifications.models import WhatsAppMessage, InboundWhatsAppMessage, MarketingContact
+from notifications.models import *
 from rest_framework import serializers
 User = get_user_model()
 
@@ -494,4 +494,14 @@ class VendorOrderItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = VendorOrderItem
+        fields = '__all__'
+
+class WhatsAppMessageStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WhatsAppMessageStatus
+        fields = '__all__'
+
+class WhatsAppSeenReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WhatsAppSeenReport
         fields = '__all__'

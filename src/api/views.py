@@ -1278,3 +1278,68 @@ class VendorOrderItemsAPI(generics.ListAPIView):
     filterset_fields = ['order__id','product']
 
     
+class WhatsAppMessageStatusView(generics.CreateAPIView):
+    permission_classes = (AllowAny,)
+    authentication_classes = ()
+    queryset = WhatsAppMessageStatus.objects.all()
+    serializer_class = WhatsAppMessageStatusSerializer
+
+    def create(self, request, *args, **kwargs):
+        results = request.data.get('results', [])
+        created_objects = []
+        
+        for result in results:
+            serializer = self.get_serializer(data={
+                'message_id': result.get('messageId'),
+                'bulk_id': result.get('bulkId'),
+                'to': result.get('to'),
+                'price_per_message': result.get('price', {}).get('pricePerMessage'),
+                'currency': result.get('price', {}).get('currency'),
+                'status_id': result.get('status', {}).get('id'),
+                'status_group_id': result.get('status', {}).get('groupId'),
+                'status_group_name': result.get('status', {}).get('groupName'),
+                'status_name': result.get('status', {}).get('name'),
+                'status_description': result.get('status', {}).get('description'),
+                'error_id': result.get('error', {}).get('id'),
+                'error_name': result.get('error', {}).get('name'),
+                'error_description': result.get('error', {}).get('description'),
+                'error_group_id': result.get('error', {}).get('groupId'),
+                'error_group_name': result.get('error', {}).get('groupName'),
+                'error_permanent': result.get('error', {}).get('permanent', False),
+                'message_count': result.get('messageCount'),
+                'sent_at': result.get('sentAt'),
+                'done_at': result.get('doneAt'),
+            })
+            serializer.is_valid(raise_exception=True)
+            created = serializer.save()
+            created_objects.append(serializer.data)
+        
+        return self.get_response(created_objects)
+    
+    def get_response(self, data):
+        from rest_framework.response import Response
+        return Response({"status": "success", "saved": data})
+
+class WhatsAppSeenReportView(generics.CreateAPIView):
+    queryset = WhatsAppSeenReport.objects.all()
+    serializer_class = WhatsAppSeenReportSerializer
+
+    def create(self, request, *args, **kwargs):
+        results = request.data.get('results', [])
+        created_objects = []
+
+        for result in results:
+            serializer = self.get_serializer(data={
+                'message_id': result.get('messageId'),
+                'from_number': result.get('from'),
+                'to': result.get('to'),
+                'sent_at': result.get('sentAt'),
+                'seen_at': result.get('seenAt'),
+                'application_id': result.get('applicationId'),
+                'entity_id': result.get('entityId'),
+            })
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            created_objects.append(serializer.data)
+
+        return Response({"status": "success", "saved": created_objects})
