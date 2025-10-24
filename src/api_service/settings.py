@@ -95,6 +95,7 @@ INSTALLED_APPS = [
     'personalization',
     'django_celery_results',
     'django_celery_beat',
+    'middlewares',
     'tracking',
     'vendors.vendors_orders',
     'analytics.apps.AnalyticsConfig',
@@ -110,6 +111,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'middlewares.middleware.RequestDataMiddleware',
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 AUTH_USER_MODEL = 'accounts.User'
