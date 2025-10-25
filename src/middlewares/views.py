@@ -44,6 +44,15 @@ class DataLogAPI(generics.ListAPIView):
 
         queryset = self.get_queryset()
 
+        # Exclude bots based on common user-agent patterns
+        bot_keywords = [
+            'bot', 'crawl', 'spider', 'curl', 'python', 'postman', 
+            'okhttp', 'fetch', 'scrapy', 'headless', 'google', 'bing', 
+            'yahoo', 'facebookexternalhit', 'whatsapp', 'telegram'
+        ]
+        for keyword in bot_keywords:
+            queryset = queryset.exclude(user_agent__icontains=keyword)
+
         if from_param and to_param:
             try:
                 # Grafana often sends ISO 8601 timestamps
@@ -81,15 +90,16 @@ class DataLogAPI(generics.ListAPIView):
             top_path_growth_data = {path: path_growth_data[path] for path, _ in top_paths}
             summary_data['path_growth'] = top_path_growth_data
 
-            # Count new users
+            # Count new users (excluding bots)
             distinct_ips = queryset.filter(is_new_user=True).annotate(date=TruncDate('timestamp'))
-            distinct_ip_count_per_day = distinct_ips.values('date').annotate(distinct_ip_count=Count('client_ip', distinct=True)).order_by('date')
+            distinct_ip_count_per_day = distinct_ips.values('date').annotate(
+                distinct_ip_count=Count('client_ip', distinct=True)
+            ).order_by('date')
 
             new_users_data = {'mobile': {}, 'web': {}}
             for entry in distinct_ip_count_per_day:
                 date_str = entry['date'].isoformat()
                 distinct_ip_count = entry['distinct_ip_count']
-                # Add logic to separate mobile vs web if needed
                 new_users_data['web'].setdefault(date_str, 0)
                 new_users_data['web'][date_str] += distinct_ip_count
 
