@@ -15,6 +15,10 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 from datetime import timedelta
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -99,6 +103,8 @@ INSTALLED_APPS = [
     'tracking',
     'vendors.vendors_orders',
     'analytics.apps.AnalyticsConfig',
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 MIDDLEWARE = [
@@ -178,6 +184,18 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# CLOUDINARY_URL=cloudinary://<your_api_key>:<your_api_secret>@ddjgu1ht2
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'ddjgu1ht2',
+    'API_KEY': '138695225694765',
+    'API_SECRET': 'y7LXFW9eOOaOX641-PWjRzxSdHQ'
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+MEDIA_URL = '/media/'
+
 
 
 # Internationalization
