@@ -45,6 +45,7 @@ class DataLogAPI(generics.ListAPIView):
         to_grafana = request.query_params.get('grafana',None)
 
         queryset = self.get_queryset()
+        queryset = queryset.exclude(path__contains='admin').exclude(path__contains='sitemap').exclude(path__contains='favicon').exclude(path__contains='platform').exclude(path__contains='accounts').exclude(path__contains='middleware')
 
         # Exclude bots based on common user-agent patterns
         bot_keywords = [
