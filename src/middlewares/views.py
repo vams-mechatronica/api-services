@@ -1,4 +1,4 @@
-import os
+import os, logging
 from rest_framework import generics, status, authentication, permissions,filters
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
@@ -23,9 +23,10 @@ from django.db.models.functions import TruncDate
 from django.utils import timezone
 from .serializer import *
 from .models import *
-import datetime
+# import datetime
 from collections import defaultdict
-
+from datetime import datetime, timezone as dt_timezone
+logger = logging.getLogger(__name__)
 
 class DataLogAPI(generics.ListAPIView):
     serializer_class = RequestDataLogSerializer
@@ -41,6 +42,7 @@ class DataLogAPI(generics.ListAPIView):
         # Handle Grafana timestamp filters
         from_param = request.query_params.get('from')
         to_param = request.query_params.get('to')
+        to_grafana = request.query_params.get('grafana',None)
 
         queryset = self.get_queryset()
 
@@ -55,12 +57,18 @@ class DataLogAPI(generics.ListAPIView):
 
         if from_param and to_param:
             try:
-                # Grafana often sends ISO 8601 timestamps
-                from_time = timezone.datetime.fromisoformat(from_param.replace('Z', '+00:00'))
-                to_time = timezone.datetime.fromisoformat(to_param.replace('Z', '+00:00'))
+                if from_param.isdigit() and to_param.isdigit():
+                    # Grafana sent milliseconds since epoch
+                    from_time = datetime.fromtimestamp(int(from_param) / 1000, tz=dt_timezone.utc)
+                    to_time = datetime.fromtimestamp(int(to_param) / 1000, tz=dt_timezone.utc)
+                else:
+                    # ISO 8601 fallback
+                    from_time = timezone.datetime.fromisoformat(from_param.replace('Z', '+00:00'))
+                    to_time = timezone.datetime.fromisoformat(to_param.replace('Z', '+00:00'))
+
                 queryset = queryset.filter(timestamp__gte=from_time, timestamp__lte=to_time)
-            except ValueError:
-                pass  # fallback to default queryset if parsing fails
+            except ValueError as e:
+                logger.error('Error reported: %s',e)
 
         # Check if summary is requested
         if 'summary' in request.query_params:
@@ -109,7 +117,7 @@ class DataLogAPI(generics.ListAPIView):
         # Apply filters, pagination, and return
         queryset = self.filter_queryset(queryset)
         page = self.paginate_queryset(queryset)
-        if page is not None:
+        if page is not None and not to_grafana:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
 
