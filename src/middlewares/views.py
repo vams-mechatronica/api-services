@@ -51,7 +51,7 @@ class DataLogAPI(generics.ListAPIView):
         bot_keywords = [
             'bot', 'crawl', 'spider', 'curl', 'python', 'postman', 
             'okhttp', 'fetch', 'scrapy', 'headless', 'google', 'bing', 
-            'yahoo', 'facebookexternalhit', 'whatsapp', 'telegram', 'Go-http-client/1.1'
+            'yahoo', 'facebookexternalhit', 'whatsapp', 'telegram', 'Go-http-client/1.1','node','dart','deno'
         ]
         for keyword in bot_keywords:
             queryset = queryset.exclude(user_agent__icontains=keyword)
