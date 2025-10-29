@@ -172,7 +172,7 @@ class MarketingContact(models.Model):
     ]
 
     client = models.ForeignKey(
-        Client,
+        'Client',
         on_delete=models.CASCADE,
         related_name='contacts',
         help_text="Client who owns this contact",
@@ -187,15 +187,26 @@ class MarketingContact(models.Model):
     age_group = models.CharField(max_length=10, choices=AGE_GROUP_CHOICES, blank=True, null=True)
     region = models.CharField(max_length=100, blank=True, null=True)
     tags = models.ManyToManyField('ContactTag', blank=True, related_name='contacts')
+
+    others = models.JSONField(
+        _("Other Details"),
+        blank=True,
+        null=True,
+        default=dict,
+        help_text="Additional metadata or dynamic fields"
+    )
+
     active = models.BooleanField(default=True)
     date_added = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         unique_together = ('client', 'phone_number')
+        verbose_name = "Marketing Contact"
+        verbose_name_plural = "Marketing Contacts"
+        ordering = ['-date_added']
 
     def __str__(self):
         return f"{self.phone_number} ({'Active' if self.active else 'Inactive'})"
-
 
 class ContactTag(models.Model):
     """

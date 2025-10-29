@@ -1231,6 +1231,10 @@ class ImportContactsAPIView(APIView):
             for _, row in df.iterrows():
                 phone = str(row.get("phone_number")).strip()
                 name = row.get("name", "")
+                email = row.get("email", "")
+                gender = row.get("gender", "")
+                region = row.get("region", "")
+                age_group = row.get("age_group", "")
 
                 if phone:
 
@@ -1245,7 +1249,8 @@ class ImportContactsAPIView(APIView):
 
                     _, created = MarketingContact.objects.get_or_create(
                         phone_number=phone,
-                        defaults={"name": name}
+                        defaults={"name": name,'email':email,'gender':gender,
+                                  'region':region,'age_group':age_group}
                     )
                     if created:
                         imported += 1

@@ -4,27 +4,35 @@ from .models import *
 
 @admin.register(MessageTemplate)
 class MessageTemplateAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('name','channel','is_active','created_at','updated_at')
+    search_fields = ('name','channel')
+    sortable_by = ('name','channel','is_active')
 
 @admin.register(MessageQueue)
 class MessageQueueAdmin(admin.ModelAdmin):
-    list_display = ('subject','is_sent','created_at','sent_at')
+    list_display = ('recipient','subject','channel','is_sent','created_at','sent_at')
+    search_fields = ('recipient','subject','channel')
 
 @admin.register(WhatsAppMessage)
 class WhatsAppMessageAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('to','from_number','status','created_at','updated_at')
+    search_fields = ('to','status')
 
 @admin.register(InboundWhatsAppMessage)
 class InboundWhatsAppMessageAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('from_number','to','body','received_at')
+    search_fields = ('from_number','to','body','received_at')
     
 @admin.register(EmailSentLog)
 class EmailSentLogAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('start_index','end_index','created_at','updated_at')
+    sortable_by = ('start_index','end_index','created_at','updated_at')
 
 @admin.register(EmailMarketingLog)
 class EmailMarketingLogAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('contact','template','sent','iteration_count','last_sent_at')
+    search_fields = ('contact','template')
+    sortable_by = ('last_sent_at')
 
 
     
